@@ -9,7 +9,7 @@ The Tealium AudienceStream™ Influence DMP (data management platform) enables y
 ## How To Get Started
 
 * Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Mobile-150-Getting-Started-With-Roku) guide for a step by step walkthough of adding Tealium to an extisting project.  
-* The public API can viewed online [here](http://tealium.github.io/tealium-roku/), it is also provided in the Documentation directory
+* The public API can viewed online [here](https://community.tealiumiq.com/t5/Mobile-Libraries/Tealium-Roku-APIs/ta-p/14717), it is also provided in the Documentation directory
 * There are many other useful articles on our [community site](https://community.tealiumiq.com).
 
 ## Contact Us
