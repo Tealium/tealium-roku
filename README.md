@@ -4,12 +4,14 @@ This library leverages the power of Tealium's [AudienceStream™](http://tealium
 
 ### What is Audience Stream ?
 
-The Tealium AudienceStream™ Influence DMP (data management platform) enables you to build a universal 360-degree customer profile to better influence and engage visitors in your web or mobile channels in real time. AudienceStream leverages the richest source of real-time, first-party data to help you deliver more relevant and timely interactions, thereby improving loyalty and conversions and creating new opportunities for growth.
+Tealium AudienceStream™ is the leading omnichannel customer segmentation and action engine, combining robust audience management and profile enrichment capabilities with the ability to take immediate, relevant action.
+
+AudienceStream™ allows you to create a unified view of your customers, correlating data across every customer touchpoint, and then leverage that comprehensive customer profile across your entire digital marketing stack.
 
 ## How To Get Started
 
-* Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Mobile-150-Getting-Started-With-Roku) guide for a step by step walkthough of adding Tealium to an extisting project.  
-* The public API can viewed online [here](http://tealium.github.io/tealium-roku/), it is also provided in the Documentation directory
+* Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Mobile-150-Getting-Started-with-Roku/ta-p/14595) guide for a step by step walkthough of adding Tealium to an extisting project.  
+* The public API can viewed online [here](https://community.tealiumiq.com/t5/Mobile-Libraries/Tealium-Roku-APIs/ta-p/14717), it is also provided in the Documentation directory
 * There are many other useful articles on our [community site](https://community.tealiumiq.com).
 
 ## Contact Us
