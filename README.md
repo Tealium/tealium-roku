@@ -1,4 +1,4 @@
-# Tealium Library for Roku Version 1.0
+# Tealium Library for Roku
 
 This library leverages the power of Tealium's [AudienceStream™](http://tealium.com/products/audiencestream/) making it natively available to Roku applications. Please contact your Account Manager first to verify your agreement(s) for licensed products.
 
@@ -20,9 +20,18 @@ The Tealium AudienceStream™ Influence DMP (data management platform) enables y
 
 ## Change Log
 
+- 1.1.0 API Update
+	- Update trackEvent takes an additional String type arg with one of the following values:
+		- activity
+		- conversion
+		- derived
+		- interaction
+		- view
+	- Additional Tealium variable:
+		- tealium_event_type
 - 1.0.0 Initial Release
-- Multiple instance support
-- TrackEvent Support
+	- Multiple instance support
+	- TrackEvent Support
 
 
 ## License
@@ -31,4 +40,4 @@ Use of this software is subject to the terms and conditions of the license agree
 
 
 ---
-Copyright (C) 2012-2016, Tealium Inc.
+Copyright (C) 2012-2017, Tealium Inc.

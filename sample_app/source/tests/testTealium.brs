@@ -64,7 +64,7 @@ Function testTealiumGetLibraryInfo(t as Object)
     libraryInfo = tealium._getLibraryInfo()
     
     t.assertEqual(libraryInfo.tealium_library_name, "roku")
-    t.assertEqual(libraryInfo.tealium_library_version, "1.0.0")
+    t.assertEqual(libraryInfo.tealium_library_version, "1.1.0")
 End Function
 
 ' test that the createTealium function assigns account, profile, and environment correctly
@@ -579,7 +579,7 @@ Function testTealiumTrackEvent(t as Object)
     End Function
     
     ' run the test using the shimmed version of _sendHttpRequest using invalid for the default url
-    tealium.TrackEvent("testEvent", {test: "test", data: "data"}, callbackObj)
+    tealium.TrackEvent("activity","testEvent", {test: "test", data: "data"}, callbackObj)
     
     eventData = parseParams(getUrlParams(collect.testResults.fullUrl))
     parsedParams = parseParams(collect.testResults.params)
