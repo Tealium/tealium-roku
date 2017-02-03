@@ -47,12 +47,13 @@ Function createTealium(account as String, profile as String, environment as Stri
                 m._print(message, 3)
                 return sessionId
             End Function
-
-            'Tealium Track Event
+            
+            'Primary Tealium Track Event
+            '@param eventType of track. Should be one of the following: activity, conversion, derived, interaction, view
             '@param title of the track event as a string. This will be the data source value for 'event_name' (required)
             '@param data roAssociativeArray 'dictionary' of additional data source keys and values (optional)
             '@param callbackObj An object with a function property 'callback' that can take an option roEvent argument
-            TrackEvent: Function(title as String, data as Object, callbackObj as Object)
+            TrackEvent: Function(eventType as String, title as String, data as Object, callbackObj as Object)
                 'Combine data with TealiumUniversalDataSources with event_name any in data that is a match will overwrite key/value
                 'create roAssocArray - add all universal data sources
                 dataSources = CreateObject("roAssociativeArray")
@@ -61,6 +62,8 @@ Function createTealium(account as String, profile as String, environment as Stri
                 if data <> Invalid Then
                     dataSources.Append(data)
                 end If
+                'append type
+                dataSources["tealium_event_type"] = eventType
                 'append title tealium_event_name
                 dataSources["event_name"] = title
                 'call dispatchEvent
@@ -151,7 +154,7 @@ Function createTealium(account as String, profile as String, environment as Stri
             _getLibraryInfo: Function () as Object
                 libInfo = CreateObject("roAssociativeArray")
                 libInfo.tealium_library_name = "roku"
-                libInfo.tealium_library_version = "1.0.0"
+                libInfo.tealium_library_version = "1.1.0"
                 return libInfo
             End Function
 
@@ -263,7 +266,7 @@ Function createTealium(account as String, profile as String, environment as Stri
                 section = m.account + "." + m.profile + "."+ m.environment
                 return section
             End Function
-
+            
             'For persisting data
             ' If tealium object not passed in, will write to global tealium file
             _writeToFile: Function (key as String, value as String)

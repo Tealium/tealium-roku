@@ -66,7 +66,7 @@ Sub button1Trigger(teal as Object, screen as Object)
     End Function
     
     'Tealium track call
-    teal.TrackEvent("button pressed",data, foo)
+    teal.TrackEvent("activity", "button pressed", data, foo)
 
     'Update textView
     screen.AddText(teal._tealiumLog.logFile)
