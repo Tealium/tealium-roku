@@ -5,18 +5,42 @@
 'Copyright (C) 2016 Tealium Inc.
 '
 '--------------------------------
-'Unit tests for "createTealium"
+'Unit tests for tealium
 '--------------------------------
 
-' test that the createTealium function creates an object with required properties
-Function testTealiumHasProperties(t as Object)
+' test that the TealiumBuilder creates an object with required properties
+function TestTealiumHasProperties(t as Object)
     print "Entering testTealiumHasProperties"
+
+    testAccount = "testAccount"
+    testProfile = "testProfile"
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
+    'Check that the tealium object contains required properties
+    requiredProps = [
+        "account"
+        "profile"
+        "ResetSessionId"
+        "TrackEvent"
+        "toStr"
+        "_tealiumLog"
+    ]
+
+    for each prop in requiredProps
+        t.AssertNotInvalid(tealium[prop])
+    end for
+end function
+
+' test that the TealiumBuilder creates an object with environment
+function TestTealiumHasEnvironment(t as Object)
+    print "Entering testTealiumHasEnvironment"
 
     testAccount = "testAccount"
     testProfile = "testProfile"
     testEnv = "testEnv"
 
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
+    tealium = TealiumBuilder(testAccount, testProfile, 3).SetEnvironment(testEnv).Build()
 
     'Check that the tealium object contains required properties
     requiredProps = [
@@ -29,520 +53,585 @@ Function testTealiumHasProperties(t as Object)
         "_tealiumLog"
     ]
 
-    For Each prop in requiredProps
-        t.assertNotInvalid(tealium[prop])
-    End For
-End Function
+    for each prop in requiredProps
+        t.AssertNotInvalid(tealium[prop])
+    end for
+end function
 
-' test that _getAccountInfo returns the correct info
-Function testTealiumGetAccountInfo(t as Object)
+' test that the TealiumBuilder creates an object with datasource
+function TestTealiumHasDatasource(t as Object)
+    print "Entering testTealiumHasDatasource"
+
+    testAccount = "testAccount"
+    testProfile = "testProfile"
+    testDatasource = "testDatasource"
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).SetDatasource(testDatasource).Build()
+
+    'Check that the tealium object contains required properties
+    requiredProps = [
+        "account"
+        "profile"
+        "datasource"
+        "ResetSessionId"
+        "TrackEvent"
+        "toStr"
+        "_tealiumLog"
+    ]
+
+    for each prop in requiredProps
+        t.AssertNotInvalid(tealium[prop])
+    end for
+end function
+
+'test that _GetAccountInfo returns the correct info
+function TestTealiumGetAccountInfo(t as Object)
     print "Entering testTealiumGetAccountInfo"
-    
-    For i=1 To 100
+
+    for i = 1 to 5
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
         testProfile$ = "testProfile" + Rnd(1000000000).toStr()
         testEnv$ = "testEnv" + Rnd(1000000000).toStr()
-    
-        tealium = createTealium(testAccount$, testProfile$, testEnv$, 3)
-        accountInfo = tealium._getAccountInfo()
-        
-        t.assertEqual(accountInfo.tealium_account, testAccount$)
-        t.assertEqual(accountInfo.tealium_profile, testProfile$)
-        t.assertEqual(accountInfo.tealium_environment, testEnv$)
-    End For
-End Function
+        testDatasource$ = "testDatasource" + Rnd(1000000000).toStr()
 
-' test that _getLibraryInfo returns the correct info
-Function testTealiumGetLibraryInfo(t as Object)
+        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetEnvironment(testEnv$).SetDatasource(testDatasource$).Build()
+        accountInfo = tealium._GetAccountInfo()
+
+        t.AssertEqual(accountInfo.tealium_account, testAccount$)
+        t.AssertEqual(accountInfo.tealium_profile, testProfile$)
+        t.AssertEqual(accountInfo.tealium_environment, testEnv$)
+        t.AssertEqual(accountInfo.tealium_datasource, testDatasource$)
+    end for
+end function
+
+'test that _GetLibraryInfo returns the correct info
+function TestTealiumGetLibraryInfo(t as Object)
     print "Entering testTealiumGetLibraryInfo"
-    
+
     testAccount$ = "testAccount" + Rnd(1000000000).toStr()
     testProfile$ = "testProfile" + Rnd(1000000000).toStr()
-    testEnv$ = "testEnv" + Rnd(1000000000).toStr()
 
-    tealium = createTealium(testAccount$, testProfile$, testEnv$, 3)
-    libraryInfo = tealium._getLibraryInfo()
-    
-    t.assertEqual(libraryInfo.tealium_library_name, "roku")
-    t.assertEqual(libraryInfo.tealium_library_version, "1.1.0")
-End Function
+    tealium = TealiumBuilder(testAccount$, testProfile$, 3).Build()
+    libraryInfo = tealium._GetLibraryInfo()
 
-' test that the createTealium function assigns account, profile, and environment correctly
-Function testCreateTealiumSetsAccountProfileEnvironment(t as Object)
+    t.AssertEqual(libraryInfo.tealium_library_name, "roku")
+    t.AssertEqual(libraryInfo.tealium_library_version, "1.2.0")
+end function
+
+' test that the TealiumBuilder assigns account and profile correctly
+function TestBuildTealiumSetsAccountProfile(t as Object)
     print "Entering testtestTealiumSetsAccountProfileEnvironment"
 
-    For i=1 To 100
+    for i = 1 to 5
+
+        testAccount$ = "testAccount" + Rnd(1000000000).toStr()
+        testProfile$ = "testProfile" + Rnd(1000000000).toStr()
+
+        tealium = TealiumBuilder(testAccount$, testProfile$, 3).Build()
+
+        'Check that the account, profile, and environment were correctly assigned
+'        print "Account assigned : " + tealium.account
+'        print "Profile assigned : " + tealium.profile
+
+        t.AssertEqual(tealium.account, testAccount$)
+        t.AssertEqual(tealium.profile, testProfile$)
+
+    end for
+end function
+
+' test that the TealiumBuilder assigns environment correctly
+function TestBuildTealiumSetsEnvironment(t as Object)
+    print "Entering testtestTealiumSetsAccountProfileEnvironment"
+
+    for i = 1 to 5
 
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
         testProfile$ = "testProfile" + Rnd(1000000000).toStr()
         testEnv$ = "testEnv" + Rnd(1000000000).toStr()
 
-        tealium = createTealium(testAccount$, testProfile$, testEnv$, 3)
+        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetEnvironment(testEnv$).Build()
 
         'Check that the account, profile, and environment were correctly assigned
 '        print "Account assigned : " + tealium.account
 '        print "Profile assigned : " + tealium.profile
 '        print "Environment assigned : " + tealium.environment
 
-        t.assertEqual(tealium.account, testAccount$)
-        t.assertEqual(tealium.profile, testProfile$)
-        t.assertEqual(tealium.environment, testEnv$)
+        t.AssertEqual(tealium.account, testAccount$)
+        t.AssertEqual(tealium.profile, testProfile$)
+        t.AssertEqual(tealium.environment, testEnv$)
 
-    End For
-End Function
+    end for
+end function
 
-' test that the createTealium function won't accept malformed parameters for account, profile, or environment
-Function testCreateTealiumRejectsMalformedParams(t as Object)
-        print "Entering testCreateTealiumRejectsMalformedParams"
-        
+' test that the TealiumBuilder assigns datasource correctly
+function TestBuildTealiumSetsDatasource(t as Object)
+    print "Entering testBuildTealiumSetsDatasource"
+
+    for i = 1 to 5
+
+        testAccount$ = "testAccount" + Rnd(1000000000).toStr()
+        testProfile$ = "testProfile" + Rnd(1000000000).toStr()
+        testDatasource$ = "testDatasource" + Rnd(1000000000).toStr()
+
+        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetDatasource(testDatasource$).Build()
+
+        'Check that the account, profile, and environment were correctly assigned
+'        print "Account assigned : " + tealium.account
+'        print "Profile assigned : " + tealium.profile
+'        print "Datasource assigned : " + tealium.datasource
+
+        t.AssertEqual(tealium.account, testAccount$)
+        t.AssertEqual(tealium.profile, testProfile$)
+        t.AssertEqual(tealium.datasource, testDatasource$)
+
+    end for
+end function
+
+' test that the TealiumBuilder won't accept malformed parameters for account, profile, environment, or datasource
+function TestTealiumBuilderRejectsMalformedParams(t as Object)
+        print "Entering testTealiumBuilderRejectsMalformedParams"
+
         'should reject empty strings
-        t.assertInvalid(createTealium("", "testProfile", "testEnvironment", 3))
-        t.assertInvalid(createTealium("testAccount", "", "testEnvironment", 3))
-        t.assertInvalid(createTealium("testAccount", "testProfile", "", 3))
-        
+        t.AssertInvalid(TealiumBuilder("", "testProfile", 3).Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "", 3).Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetEnvironment("").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetDatasource("").Build())
+
         'should reject params with spaces
-        t.assertInvalid(createTealium("test account", "testProfile", "testEnvironment", 3))
-        t.assertInvalid(createTealium("testAccount", "test profile", "testEnvironment", 3))
-        t.assertInvalid(createTealium("testAccount", "testProfile", "test environment", 3))
-End Function
+        t.AssertInvalid(TealiumBuilder("test Account", "testProfile", 3).Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "test Profile", 3).Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetEnvironment("test environment").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetDatasource("test datasource").Build())
+end function
 
 '----------------------------------
 'Unit tests for "SetLogLevel"
 '----------------------------------
 
-'test the "_getLogLevel" function
-Function testTealiumGetLogLevel(t as Object)
+'test the "_GetLogLevel" function
+function TestTealiumGetLogLevel(t as Object)
     print "Entering testTealiumGetLogLevel"
 
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
 
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
 
     print "get log level"
-    logLevel% = tealium._tealiumLog.logLevelThreshold
+    logLevel% = tealium._TealiumLog.logLevelThreshold
     print "test log level is in range"
-    t.assertTrue(logLevel% >= 0)
-    t.assertTrue(logLevel% <= 3)
-End Function
+    t.AssertTrue(logLevel% >= 0)
+    t.AssertTrue(logLevel% <= 3)
+end function
 
 'test the "SetLogLevel" function
-Function testTealiumSetLogLevel(t as Object)
+function TestTealiumSetLogLevel(t as Object)
     print "Entering testTealiumSetLogLevel"
 
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
 
     ' test each of the possible log levels
-    For i=0 To 3
-        tealium = createTealium(testAccount, testProfile, testEnv, i)
-        t.assertTrue(tealium._tealiumLog.logLevelThreshold=i)
-    End For
-End Function
+    for i = 0 to 3
+        tealium = TealiumBuilder(testAccount, testProfile, i).Build()
+        t.AssertTrue(tealium._tealiumLog.logLevelThreshold=i)
+    end for
+end function
 
 'test ResetSessionId
-Function testTealiumResetSessionId(t as Object)
+function TestTealiumResetSessionId(t as Object)
     print "Entering testTealiumResetSessionId"
-    
+
     p = CreateObject("roMessagePort")
-    
+
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
-    For i=1 to 10
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
+    for i=1 to 10
         'get current session id
         oldSessionId = tealium.sessionId
         print("waiting...")
-        
+
         'wait for a random time between 1 second and 4 seconds
         wait(Rnd(3000) + 1000, p)
-        
+
         'reset the session id
         tealium.ResetSessionId()
         newSessionId = tealium.sessionId
-        
+
         'assert the old and new session id are different
-        t.assertFalse(oldSessionId=newSessionId)
-        
-        
+        t.AssertFalse(oldSessionId=newSessionId)
+
+
         print "old session id: " oldSessionId
         print "new session id: " newSessionId
-    End For
-End Function
+    end for
+end function
 
 'check that randomNumbers are random for each instance and the number is 16 characters'
-Function testTealiumGetRandomNumber(t as Object)
+function TestTealiumGetRandomNumber(t as Object)
     print "Entering testGetRandomNumber"
 
-    tealium = createTealium("account1", "profile", "dev", 3)
-    random1 = tealium._getRandomNumber()
+    tealium = TealiumBuilder("account1", "profile", 3).Build()
+    random1 = tealium._GetRandomNumber()
 
-    tealium2 = createTealium("account2", "profile", "dev", 3)
-    random2 = tealium2._getRandomNumber()
+    tealium2 = TealiumBuilder("account2", "profile", 3).Build()
+    random2 = tealium2._GetRandomNumber()
 
-    tealium3 = createTealium("account3", "profile", "dev", 3)
-    random3 = tealium3._getRandomNumber()
+    tealium3 = TealiumBuilder("account3", "profile", 3).Build()
+    random3 = tealium3._GetRandomNumber()
 
-    tealium4 = createTealium("account4", "profile", "dev", 3)
-    random4 = tealium4._getRandomNumber()
+    tealium4 = TealiumBuilder("account4", "profile", 3).Build()
+    random4 = tealium4._GetRandomNumber()
 
-    tealium5 = createTealium("account5", "profile", "dev", 3)
-    random5 = tealium5._getRandomNumber()
+    tealium5 = TealiumBuilder("account5", "profile", 3).Build()
+    random5 = tealium5._GetRandomNumber()
 
-    tealium6 = createTealium("account6", "profile", "dev", 3)
-    random6 = tealium6._getRandomNumber()
+    tealium6 = TealiumBuilder("account6", "profile", 3).Build()
+    random6 = tealium6._GetRandomNumber()
 
     randomArray = [random1, random2, random3, random4, random5, random6]
 
     for i=0 to randomArray.Count()-1
         print randomArray.GetEntry(i)
         for k=i+1 to randomArray.Count()
-            t.assertNotEqual(randomArray.GetEntry(i), randomArray.GetEntry(k))
+            t.AssertNotEqual(randomArray.GetEntry(i), randomArray.GetEntry(k))
         end for
     end for
 
-    t.assertTrue(Len(random1)=16)
-    t.assertTrue(Len(random2)=16)
-    t.assertTrue(Len(random3)=16)
-    t.assertTrue(Len(random4)=16)
-    t.assertTrue(Len(random5)=16)
-    t.assertTrue(Len(random6)=16)
+    t.AssertTrue(Len(random1)=16)
+    t.AssertTrue(Len(random2)=16)
+    t.AssertTrue(Len(random3)=16)
+    t.AssertTrue(Len(random4)=16)
+    t.AssertTrue(Len(random5)=16)
+    t.AssertTrue(Len(random6)=16)
 
-End Function
+end function
 
 'Make sure 2 tealium instances created have different vids
-Function testDuplicateVisitorId(t as Object)
-    tealium1 = createTealium("account", "profile", "env", 3)
-    tealium2 = createTealium("anotherAccount", "profile", "env", 3)
+function TestDuplicateVisitorId(t as Object)
+    tealium1 = TealiumBuilder("account", "profile", 3).Build()
+    tealium2 = TealiumBuilder("anotheraccount", "profile", 3).Build()
     visitorId1 = tealium1.visitorId
     visitorId2 = tealium2.visitorId
-    t.assertNotEqual(visitorId1, visitorId2)
-End Function
+    t.AssertNotEqual(visitorId1, visitorId2)
+end function
 
 'Make sure the reset vid works
-Function testResetVisitorId(t as Object)
-    tealium = createTealium("resetAccount", "profile", "env", 3)
+function TestResetVisitorId(t as Object)
+    tealium = TealiumBuilder("resetAccount", "profile", 3).Build()
     vidOriginal = tealium.visitorId
-    tealium._resetVisitorId()
+    tealium._ResetVisitorId()
     vidNew = tealium.visitorId
     print "original vid: " vidOriginal
     print "new vid: " vidNew
-    t.assertNotEqual(vidOriginal, vidNew)
-End Function
+    t.AssertNotEqual(vidOriginal, vidNew)
+end function
 
 'Check persistence of visitor id
-Function testPersistVisitorId(t as Object)
-    tealium = createTealium("resetAccount", "profile", "env", 3)
+function TestPersistVisitorId(t as Object)
+    tealium = TealiumBuilder("resetAccount", "profile", 3).Build()
     vidOriginal = tealium.visitorId
     'Directly call for visitor Id
-    vidCheck = tealium._getVisitorId()
-    t.assertEqual(vidOriginal, vidCheck)
-End Function
+    vidCheck = tealium._GetVisitorId()
+    t.AssertEqual(vidOriginal, vidCheck)
+end function
 
 '------------------------------------------------------------
 'Track Event Unit Tests
 '------------------------------------------------------------
 
-Function testCreateTealiumCollect(t as Object)
+function TestCreateTealiumCollect(t as Object)
     print "......................................................."
     print "Entering testCreateTealiumCollect"
-    
+
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
-    collect = createTealiumCollect(tealium._tealiumLog)
-    
-    t.assertNotInvalid(collect)
-End Function
 
-' test that the createTealium function creates an object with required properties
-Function testTealiumCollectHasProperties(t as Object)
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
+    collect = CreateTealiumCollect(tealium._tealiumLog)
+
+    t.AssertNotInvalid(collect)
+end function
+
+' test that TealiumBuilder creates an object with required properties
+function TestTealiumCollectHasProperties(t as Object)
     print "......................................................."
     print "Entering testTealiumCollectHasProperties"
 
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
-    collect = createTealiumCollect(tealium._tealiumLog)
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
+    collect = CreateTealiumCollect(tealium._tealiumLog)
 
     'Check that the tealium object contains required properties
     requiredProps = [
-        "_dispatchEvent"
-        "_sendHttpRequest"
+        "_DispatchEvent"
+        "_SendHttpRequest"
         "_tealiumLog"
-        "_appendQueryParams"
+        "_AppendQueryParams"
     ]
 
-    For Each prop in requiredProps
-        t.assertNotInvalid(collect[prop])
-    End For
-End Function
+    for each prop in requiredProps
+        t.AssertNotInvalid(collect[prop])
+    end for
+end function
 
-Function testAppendQueryParams(t as Object)
+function TestAppendQueryParams(t as Object)
     print "......................................................."
     print "Entering testAppendQueryParams"
 
     ' create a tealium object
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
-    ' create a collect object
-    collect = createTealiumCollect(tealium._tealiumLog)
-    
-    urlTransfer = CreateObject("roUrlTransfer")
-    
-    ' check that the _appendQueryParams function returns expected results for various input
-    t.assertEqual(collect._appendQueryParams(urlTransfer, {}), "")
-    t.assertEqual(collect._appendQueryParams(urlTransfer, {test: "test"}), "test=test")
-    t.assertEqual(collect._appendQueryParams(urlTransfer, {test: "test", data: "data"}), "data=data&test=test")
-    t.assertEqual(collect._appendQueryParams(urlTransfer, {test: "test", data: "data", a: "a", z: "z"}), "a=a&data=data&test=test&z=z")
-    t.assertEqual(collect._appendQueryParams(urlTransfer, {data: "test", test: "data", z: "a", a: "z"}), "a=z&data=test&test=data&z=a")
-End Function
 
-Function testSendHttpRequestRecievesCorrectParams(t as Object)
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
+    ' create a collect object
+    collect = CreateTealiumCollect(tealium._tealiumLog)
+
+    urlTransfer = CreateObject("roUrlTransfer")
+
+    ' check that the _AppendQueryParams function returns expected results for various input
+    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {}), "")
+    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test"}), "test=test")
+    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test", data: "data"}), "data=data&test=test")
+    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test", data: "data", a: "a", z: "z"}), "a=a&data=data&test=test&z=z")
+    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {data: "test", test: "data", z: "a", a: "z"}), "a=z&data=test&test=data&z=a")
+end function
+
+function TestSendHttpRequestRecievesCorrectParams(t as Object)
     print "......................................................."
     print "Entering testSendHttpRequestRecievesCorrectParams"
 
     ' create tealium object
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
     ' create the collect object
-    collect = createTealiumCollect(tealium._tealiumLog)
-    
+    collect = CreateTealiumCollect(tealium._tealiumLog)
+
     ' create property for saving test results
     collect.testResults = {}
-    
+
     ' create dummy callback function that does nothing
-    dummyCallback = Function(event)
-    End Function
-    
+    DummyCallback = function(event)
+    end function
+
     ' create dummy callback object with dummy callback function
-    callbackObj = {callback: dummyCallback}
-    
-    ' stub the _sendHttpRequest function to simply save the parameters it receives into the test results parameter
-    collect._sendHttpRequest = Function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
+    callbackObj = {callback: DummyCallback}
+
+    ' stub the _SendHttpRequest function to simply save the parameters it receives into the test results parameter
+    collect._SendHttpRequest = function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
         m.testResults.url = url
         m.testResults.params = params
         m.testResults.callbackObj = callbackObj
-    End Function
-    
+    end function
+
     ' run the test for a couple cases
-    collect._dispatchEvent({test: "test", data: "data"}, callbackObj)
-    
-    t.assertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.assertEqual(collect.testResults.params, "data=data&test=test")
-    t.assertEqual(collect.testResults.callbackObj, callbackObj)
-    
+    collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
+
+    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
+    t.AssertEqual(collect.testResults.params, "data=data&test=test")
+    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+
     ' override the default url
     collect.SetBaseURL("https://mydomain.com/test.gif")
-    collect._dispatchEvent({test: "test", data: "data"}, callbackObj)
-    
-    t.assertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
-    t.assertEqual(collect.testResults.params, "data=data&test=test")
-    t.assertEqual(collect.testResults.callbackObj, callbackObj)
-End Function
+    collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
 
-Function testSendHttpRequestWithDefaultUrl(t as Object)
+    t.AssertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
+    t.AssertEqual(collect.testResults.params, "data=data&test=test")
+    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+end function
+
+function TestSendHttpRequestWithDefaultUrl(t as Object)
     print "......................................................."
     print "Entering testSendHttpRequestWithDefaultUrl"
 
     ' create tealium object
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
     ' create the collect object
-    collect = createTealiumCollect(tealium._tealiumLog)
-    
+    collect = CreateTealiumCollect(tealium._tealiumLog)
+
     ' create property for saving test results
     collect.testResults = {}
-    
+
     ' create dummy callback function that does nothing
-    dummyCallback = Function(event)
-    End Function
-    
+    DummyCallback = function(event)
+    end function
+
     ' create dummy callback function that does nothing
-    callbackObj = {callback: dummyCallback}
-    
-    ' shim the _sendHttpRequest function and save the parameters passed in the results parameter
+    callbackObj = {callback: DummyCallback}
+
+    ' shim the _SendHttpRequest function and save the parameters passed in the results parameter
     ' this will call the original function after saving the parameters
-    collect.__sendHttpRequest = collect._sendHttpRequest
-    collect._sendHttpRequest = Function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
+    collect.__SendHttpRequest = collect._SendHttpRequest
+    collect._SendHttpRequest = function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
         m.testResults.url = url
         m.testResults.params = params
         m.testResults.urlTransfer = urlTransfer
         m.testResults.callbackObj = callbackObj
-        m.testResults.fullUrl = m.__sendHttpRequest(url, params, urlTransfer, callbackObj)
+        m.testResults.fullUrl = m.__SendHttpRequest(url, params, urlTransfer, callbackObj)
         return m.testResults.fullUrl
-    End Function
-    
-    ' run the test using the shimmed version of _sendHttpRequest using invalid for the default url
-    collect._dispatchEvent({test: "test", data: "data"}, callbackObj)
-    
-    t.assertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.assertEqual(collect.testResults.params, "data=data&test=test")
-    t.assertEqual(collect.testResults.callbackObj, callbackObj)
-End Function
+    end function
 
-Function testSendHttpRequestCanOverrideUrl(t as Object)
+    ' run the test using the shimmed version of _SendHttpRequest using invalid for the default url
+    collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
+
+    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
+    t.AssertEqual(collect.testResults.params, "data=data&test=test")
+    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+end function
+
+function TestSendHttpRequestCanOverrideUrl(t as Object)
     print "......................................................."
     print "Entering testSendHttpRequestCanOverrideUrl"
 
     ' create tealium object
     testAccount = "testAccount"
     testProfile = "testProfile"
-    testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+
     ' create the collect object
-    collect = createTealiumCollect(tealium._tealiumLog)
-    
+    collect = CreateTealiumCollect(tealium._tealiumLog)
+
     ' create property for saving test results
     collect.testResults = {}
-    
+
     ' create dummy callback function that does nothing
-    dummyCallback = Function(event)
-    End Function
-    
+    DummyCallback = function(event)
+    end function
+
     ' create dummy callback function that does nothing
-    callbackObj = {callback: dummyCallback}
-    
-    ' shim the _sendHttpRequest function and save the parameters passed in the results parameter
+    callbackObj = {callback: DummyCallback}
+
+    ' shim the _SendHttpRequest function and save the parameters passed in the results parameter
     ' this will call the original function after saving the parameters
-    collect.__sendHttpRequest = collect._sendHttpRequest    
-    collect._sendHttpRequest = Function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
+    collect.__SendHttpRequest = collect._SendHttpRequest
+    collect._SendHttpRequest = function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
         m.testResults.url = url
         m.testResults.params = params
         m.testResults.urlTransfer = urlTransfer
         m.testResults.callbackObj = callbackObj
-        m.testResults.fullUrl = m.__sendHttpRequest(url, params, urlTransfer, callbackObj)
+        m.testResults.fullUrl = m.__SendHttpRequest(url, params, urlTransfer, callbackObj)
         return m.testResults.fullUrl
-    End Function
-    
-    ' run the test using the shimmed version of _sendHttpRequest overriding the default url
-    newURL = collect.SetBaseURL("https://mydomain.com/test.gif")
-    collect._dispatchEvent({test: "test", data: "data"}, callbackObj)
-    
-    t.assertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
-    t.assertEqual(collect.testResults.params, "data=data&test=test")
-    t.assertEqual(collect.testResults.callbackObj, callbackObj)
-End Function
+    end function
 
-Function testTealiumTrackEvent(t as Object)
-    parseParams = Function (params as String) as Object
+    ' run the test using the shimmed version of _SendHttpRequest overriding the default url
+    newURL = collect.SetBaseURL("https://mydomain.com/test.gif")
+    collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
+
+    t.AssertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
+    t.AssertEqual(collect.testResults.params, "data=data&test=test")
+    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+end function
+
+function TestTealiumTrackEvent(t as Object)
+    ParseParams = function (params as String) as Object
         ' split a string by all its ampersand "&" symbols
-        splitStrByAmpersand = Function (s as String) as Object
+        SplitStrByAmpersand = function (s as String) as Object
             c = "&"
             result = []
             curStr = ""
-            
-            For i=1 to Len(s)
-                If mid(s, i, 1)=c
+
+            for i=1 to Len(s)
+                if mid(s, i, 1)=c
                     result.push(curStr)
                     curStr = ""
-                Else
+                else
                     curStr = curStr + mid(s, i, 1)
-                End If
-            End For
-            
+                end if
+            end for
+
             result.push(curStr)
             curStr = ""
-            
+
             return result
-        End Function
-        
+        end function
+
         ' split a string by all its equal "=" symbols
-        splitStrByEquals = Function (s as String) as Object
+        SplitStrByEquals = function (s as String) as Object
             c = "="
             result = []
             curStr = ""
-            
-            For i=1 to Len(s)
-                If mid(s, i, 1)=c
+
+            for i=1 to Len(s)
+                if mid(s, i, 1)=c
                     result.push(curStr)
                     curStr = ""
-                Else
+                else
                     curStr = curStr + mid(s, i, 1)
-                End If
-            End For
-            
+                end if
+            end for
+
             result.push(curStr)
             curStr = ""
-            
+
             return result
-        End Function
-        
+        end function
+
         ' given an array and a function that takes a single argument, apply the function
         ' to each element in the array and return a new array
-        map = Function (arr as Object, f as Function) as Object
+        Map = function (arr as Object, f as function) as Object
             result = []
-            
-            For Each e In arr
+
+            for each e In arr
                 result.push(f(e))
-            End For
-            
+            end for
+
             return result
-        End Function
-        
+        end function
+
         ' get array of all key value pairs in the query params
-        intermediate = map(splitStrByAmpersand(params), splitStrByEquals)
-        
+        intermediate = Map(SplitStrByAmpersand(params), SplitStrByEquals)
+
         ' convert the result into an object
         result = {}
-        For Each element in intermediate
+        for each element in intermediate
             result[element[0]] = element[1]
-        End For
-        
+        end for
+
         return result
-    End Function
-    
-    getUrlParams = Function (url as String) as String
+    end function
+
+    GetUrlParams = function (url as String) as String
         ' split a string by all its question mark "?" symbols
-        splitStrByQuestion = Function (s as String) as Object
+        splitStrByQuestion = function (s as String) as Object
             c = "?"
             result = []
             curStr = ""
-            
-            For i=1 to Len(s)
-                If mid(s, i, 1)=c
+
+            for i=1 to Len(s)
+                if mid(s, i, 1)=c
                     result.push(curStr)
                     curStr = ""
-                Else
+                else
                     curStr = curStr + mid(s, i, 1)
-                End If
-            End For
-            
+                end if
+            end for
+
             result.push(curStr)
             curStr = ""
-            
+
             return result
-        End Function
-        
+        end function
+
         return splitStrByQuestion(url)[1]
-    End Function
-    
-    
+    end function
+
+
     print "......................................................."
     print "Entering testTealiumTrackEvent"
 
@@ -550,51 +639,77 @@ Function testTealiumTrackEvent(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
     testEnv = "testEnv"
-    
-    tealium = createTealium(testAccount, testProfile, testEnv, 3)
-    
+    testDatasource = "testDatasource"
+
+    tealium = TealiumBuilder(testAccount, testProfile, 3).SetEnvironment(testEnv).SetDatasource(testDatasource).Build()
+
     ' create the collect object
     collect = tealium.tealiumCollect
-    
+
     ' create property for saving test results
     collect.testResults = {}
-    
+
     ' create dummy callback function that does nothing
-    dummyCallback = Function(event)
-    End Function
-    
+    DummyCallback = function(event)
+    end function
+
     ' create dummy callback function that does nothing
-    callbackObj = {callback: dummyCallback}
-    
-    ' shim the _sendHttpRequest function and save the parameters passed in the results parameter
+    callbackObj = {callback: DummyCallback}
+
+    ' shim the _SendHttpRequest function and save the parameters passed in the results parameter
     ' this will call the original function after saving the parameters
-    collect.__sendHttpRequest = collect._sendHttpRequest
-    collect._sendHttpRequest = Function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
+    collect.__SendHttpRequest = collect._SendHttpRequest
+    collect._SendHttpRequest = function (url as String, params as String, urlTransfer as Object, callbackObj) as Object
         m.testResults.url = url
         m.testResults.params = params
         m.testResults.callbackObj = callbackObj
         m.testResults.urlTransfer = urlTransfer
-        m.testResults.fullUrl = m.__sendHttpRequest(url, params, urlTransfer, callbackObj)
+        m.testResults.fullUrl = m.__SendHttpRequest(url, params, urlTransfer, callbackObj)
         return m.testResults.fullUrl
-    End Function
-    
-    ' run the test using the shimmed version of _sendHttpRequest using invalid for the default url
+    end function
+
+    ' run the test using the shimmed version of _SendHttpRequest using invalid for the default url
     tealium.TrackEvent("activity","testEvent", {test: "test", data: "data"}, callbackObj)
-    
-    eventData = parseParams(getUrlParams(collect.testResults.fullUrl))
-    parsedParams = parseParams(collect.testResults.params)
-    
-    ' print the sent event data and the params received by _sendHttpRequest for comparison
+
+    eventData = ParseParams(GetUrlParams(collect.testResults.fullUrl))
+    parsedParams = ParseParams(collect.testResults.params)
+
+    ' print the sent event data and the params received by _SendHttpRequest for comparison
     'print eventData
     'print parsedParams
-    
+
     ' check the url and callback are correct
-    t.assertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.assertEqual(collect.testResults.callbackObj, callbackObj)
-    
+    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
+    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+
     ' check that each variable send to the server is correct given
-    ' the params recieved by the _sendHttpRequest function
-    For Each key in parsedParams
-        t.assertEqual(parsedParams[key], eventData[key])
-    End For
-End Function
+    ' the params recieved by the _SendHttpRequest function
+    for each key in parsedParams
+        t.AssertEqual(parsedParams[key], eventData[key])
+    end for
+end function
+
+function TestCreateTealiumShim(t as Object)
+    print "testCreateTealiumShim"
+
+    testAccount = "testAccount"
+    testProfile = "testProfile"
+    testEnv = "testEnv"
+
+    tealium = CreateTealium(testAccount, testProfile, testEnv, 3)
+
+    'Check that the tealium object contains required properties
+    requiredProps = [
+        "account"
+        "profile"
+        "environment"
+        "ResetSessionId"
+        "TrackEvent"
+        "toStr"
+        "_tealiumLog"
+    ]
+
+    for each prop in requiredProps
+        t.AssertNotInvalid(tealium[prop])
+    end for
+end function

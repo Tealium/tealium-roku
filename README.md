@@ -12,6 +12,16 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 
 * Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Mobile-150-Getting-Started-with-Roku/ta-p/14595) guide for a step by step walkthough of adding Tealium to an extisting project.  
 * The public API can viewed online [here](https://community.tealiumiq.com/t5/Mobile-Libraries/Tealium-Roku-APIs/ta-p/14717), it is also provided in the Documentation directory
+> NOTE:
+>
+> Tealium objects are now constructed using a builder pattern, where account, profile, and logLevel are required and environment and datasource are optional
+>
+> E.g. without environment and datasource: `tealium = TealiumBuilder("account", "profile", 3).Build()`
+>
+> E.g. with environment and datasource: `tealium = TealiumBuilder("account", "profile", 3).SetEnvironment("environment").SetDatasource("datasource").Build()`
+>
+> Account, profile, environment, and datasource are all strings, while logLevel is an integer from 0 to 3
+
 * There are many other useful articles on our [community site](https://community.tealiumiq.com).
 
 ## Contact Us
@@ -22,6 +32,10 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 
 ## Change Log
 
+- 1.2.0 Add Datasource
+    - New variable added:
+		- tealium_datasource
+    - Implemented Builder pattern / old constructor deprecated
 - 1.1.0 API Update
 	- Update trackEvent takes an additional String type arg with one of the following values:
 		- activity
