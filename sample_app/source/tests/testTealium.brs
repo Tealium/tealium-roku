@@ -15,7 +15,7 @@ function TestTealiumHasProperties(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     'Check that the tealium object contains required properties
     requiredProps = [
@@ -40,7 +40,7 @@ function TestTealiumHasEnvironment(t as Object)
     testProfile = "testProfile"
     testEnv = "testEnv"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).SetEnvironment(testEnv).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).SetEnvironment(testEnv).Build()
 
     'Check that the tealium object contains required properties
     requiredProps = [
@@ -66,7 +66,7 @@ function TestTealiumHasDatasource(t as Object)
     testProfile = "testProfile"
     testDatasource = "testDatasource"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).SetDatasource(testDatasource).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).SetDatasource(testDatasource).Build()
 
     'Check that the tealium object contains required properties
     requiredProps = [
@@ -94,7 +94,7 @@ function TestTealiumGetAccountInfo(t as Object)
         testEnv$ = "testEnv" + Rnd(1000000000).toStr()
         testDatasource$ = "testDatasource" + Rnd(1000000000).toStr()
 
-        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetEnvironment(testEnv$).SetDatasource(testDatasource$).Build()
+        tealium = TealiumBuilder(testAccount$, testProfile$).SetEnvironment(testEnv$).SetDatasource(testDatasource$).Build()
         accountInfo = tealium._GetAccountInfo()
 
         t.AssertEqual(accountInfo.tealium_account, testAccount$)
@@ -111,7 +111,7 @@ function TestTealiumGetLibraryInfo(t as Object)
     testAccount$ = "testAccount" + Rnd(1000000000).toStr()
     testProfile$ = "testProfile" + Rnd(1000000000).toStr()
 
-    tealium = TealiumBuilder(testAccount$, testProfile$, 3).Build()
+    tealium = TealiumBuilder(testAccount$, testProfile$).Build()
     libraryInfo = tealium._GetLibraryInfo()
 
     t.AssertEqual(libraryInfo.tealium_library_name, "roku")
@@ -127,7 +127,7 @@ function TestBuildTealiumSetsAccountProfile(t as Object)
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
         testProfile$ = "testProfile" + Rnd(1000000000).toStr()
 
-        tealium = TealiumBuilder(testAccount$, testProfile$, 3).Build()
+        tealium = TealiumBuilder(testAccount$, testProfile$).Build()
 
         'Check that the account, profile, and environment were correctly assigned
 '        print "Account assigned : " + tealium.account
@@ -149,7 +149,7 @@ function TestBuildTealiumSetsEnvironment(t as Object)
         testProfile$ = "testProfile" + Rnd(1000000000).toStr()
         testEnv$ = "testEnv" + Rnd(1000000000).toStr()
 
-        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetEnvironment(testEnv$).Build()
+        tealium = TealiumBuilder(testAccount$, testProfile$).SetEnvironment(testEnv$).Build()
 
         'Check that the account, profile, and environment were correctly assigned
 '        print "Account assigned : " + tealium.account
@@ -173,7 +173,7 @@ function TestBuildTealiumSetsDatasource(t as Object)
         testProfile$ = "testProfile" + Rnd(1000000000).toStr()
         testDatasource$ = "testDatasource" + Rnd(1000000000).toStr()
 
-        tealium = TealiumBuilder(testAccount$, testProfile$, 3).SetDatasource(testDatasource$).Build()
+        tealium = TealiumBuilder(testAccount$, testProfile$).SetDatasource(testDatasource$).Build()
 
         'Check that the account, profile, and environment were correctly assigned
 '        print "Account assigned : " + tealium.account
@@ -192,16 +192,16 @@ function TestTealiumBuilderRejectsMalformedParams(t as Object)
         print "Entering testTealiumBuilderRejectsMalformedParams"
 
         'should reject empty strings
-        t.AssertInvalid(TealiumBuilder("", "testProfile", 3).Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "", 3).Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetEnvironment("").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetDatasource("").Build())
+        t.AssertInvalid(TealiumBuilder("", "testProfile").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("").Build())
 
         'should reject params with spaces
-        t.AssertInvalid(TealiumBuilder("test Account", "testProfile", 3).Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "test Profile", 3).Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetEnvironment("test environment").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile", 3).SetDatasource("test datasource").Build())
+        t.AssertInvalid(TealiumBuilder("test Account", "testProfile").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "test Profile").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("test environment").Build())
+        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("test datasource").Build())
 end function
 
 '----------------------------------
@@ -215,7 +215,7 @@ function TestTealiumGetLogLevel(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     print "get log level"
     logLevel% = tealium._TealiumLog.logLevelThreshold
@@ -226,6 +226,20 @@ end function
 
 'test the "SetLogLevel" function
 function TestTealiumSetLogLevel(t as Object)
+    print "Entering testTealiumSetLogLevel"
+
+    testAccount = "testAccount"
+    testProfile = "testProfile"
+
+    ' test each of the possible log levels
+    for i = 0 to 3
+        tealium = TealiumBuilder(testAccount, testProfile).SetLogLevel(i).Build()
+        t.AssertTrue(tealium._tealiumLog.logLevelThreshold=i)
+    end for
+end function
+
+'test setting the log level through the builder constructor
+function TestTealiumSetLogLevelViaConstructor(t as Object)
     print "Entering testTealiumSetLogLevel"
 
     testAccount = "testAccount"
@@ -247,7 +261,7 @@ function TestTealiumResetSessionId(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     for i=1 to 10
         'get current session id
@@ -274,22 +288,22 @@ end function
 function TestTealiumGetRandomNumber(t as Object)
     print "Entering testGetRandomNumber"
 
-    tealium = TealiumBuilder("account1", "profile", 3).Build()
+    tealium = TealiumBuilder("account1", "profile").Build()
     random1 = tealium._GetRandomNumber()
 
-    tealium2 = TealiumBuilder("account2", "profile", 3).Build()
+    tealium2 = TealiumBuilder("account2", "profile").Build()
     random2 = tealium2._GetRandomNumber()
 
-    tealium3 = TealiumBuilder("account3", "profile", 3).Build()
+    tealium3 = TealiumBuilder("account3", "profile").Build()
     random3 = tealium3._GetRandomNumber()
 
-    tealium4 = TealiumBuilder("account4", "profile", 3).Build()
+    tealium4 = TealiumBuilder("account4", "profile").Build()
     random4 = tealium4._GetRandomNumber()
 
-    tealium5 = TealiumBuilder("account5", "profile", 3).Build()
+    tealium5 = TealiumBuilder("account5", "profile").Build()
     random5 = tealium5._GetRandomNumber()
 
-    tealium6 = TealiumBuilder("account6", "profile", 3).Build()
+    tealium6 = TealiumBuilder("account6", "profile").Build()
     random6 = tealium6._GetRandomNumber()
 
     randomArray = [random1, random2, random3, random4, random5, random6]
@@ -312,8 +326,8 @@ end function
 
 'Make sure 2 tealium instances created have different vids
 function TestDuplicateVisitorId(t as Object)
-    tealium1 = TealiumBuilder("account", "profile", 3).Build()
-    tealium2 = TealiumBuilder("anotheraccount", "profile", 3).Build()
+    tealium1 = TealiumBuilder("account", "profile").Build()
+    tealium2 = TealiumBuilder("anotheraccount", "profile").Build()
     visitorId1 = tealium1.visitorId
     visitorId2 = tealium2.visitorId
     t.AssertNotEqual(visitorId1, visitorId2)
@@ -321,7 +335,7 @@ end function
 
 'Make sure the reset vid works
 function TestResetVisitorId(t as Object)
-    tealium = TealiumBuilder("resetAccount", "profile", 3).Build()
+    tealium = TealiumBuilder("resetAccount", "profile").Build()
     vidOriginal = tealium.visitorId
     tealium._ResetVisitorId()
     vidNew = tealium.visitorId
@@ -332,7 +346,7 @@ end function
 
 'Check persistence of visitor id
 function TestPersistVisitorId(t as Object)
-    tealium = TealiumBuilder("resetAccount", "profile", 3).Build()
+    tealium = TealiumBuilder("resetAccount", "profile").Build()
     vidOriginal = tealium.visitorId
     'Directly call for visitor Id
     vidCheck = tealium._GetVisitorId()
@@ -350,7 +364,7 @@ function TestCreateTealiumCollect(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     collect = CreateTealiumCollect(tealium._tealiumLog)
 
@@ -365,7 +379,7 @@ function TestTealiumCollectHasProperties(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     collect = CreateTealiumCollect(tealium._tealiumLog)
 
@@ -390,7 +404,7 @@ function TestAppendQueryParams(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     ' create a collect object
     collect = CreateTealiumCollect(tealium._tealiumLog)
@@ -413,7 +427,7 @@ function TestSendHttpRequestRecievesCorrectParams(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     ' create the collect object
     collect = CreateTealiumCollect(tealium._tealiumLog)
@@ -459,7 +473,7 @@ function TestSendHttpRequestWithDefaultUrl(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     ' create the collect object
     collect = CreateTealiumCollect(tealium._tealiumLog)
@@ -502,7 +516,7 @@ function TestSendHttpRequestCanOverrideUrl(t as Object)
     testAccount = "testAccount"
     testProfile = "testProfile"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).Build()
 
     ' create the collect object
     collect = CreateTealiumCollect(tealium._tealiumLog)
@@ -641,7 +655,7 @@ function TestTealiumTrackEvent(t as Object)
     testEnv = "testEnv"
     testDatasource = "testDatasource"
 
-    tealium = TealiumBuilder(testAccount, testProfile, 3).SetEnvironment(testEnv).SetDatasource(testDatasource).Build()
+    tealium = TealiumBuilder(testAccount, testProfile).SetEnvironment(testEnv).SetDatasource(testDatasource).Build()
 
     ' create the collect object
     collect = tealium.tealiumCollect
