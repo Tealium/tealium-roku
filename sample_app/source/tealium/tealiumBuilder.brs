@@ -16,7 +16,7 @@
 '@param logLevel as an integer 0-None,1-Errors,2-Warnings,3-Messages | higher log levels include lower
 '@return Object Instance of Tealium
 
-function TealiumBuilder(account as String, profile as String, logLevel as Integer) as Object
+function TealiumBuilder(account as String, profile as String, logLevel = 3 as Integer) as Object
     return {
         _account: account
         _profile: profile
@@ -67,6 +67,11 @@ function TealiumBuilder(account as String, profile as String, logLevel as Intege
 
         SetEnvironment: function (environment as String) as Object
             m._environment = environment
+            return m
+        end function
+
+        SetLogLevel: function (logLevel as Integer) as Object
+            m._logLevel = logLevel
             return m
         end function
 
