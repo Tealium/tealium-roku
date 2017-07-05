@@ -18,7 +18,7 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 >
 > E.g. without environment and datasource: `tealium = TealiumBuilder("account", "profile", 3).Build()`
 >
-> E.g. with environment and datasource: `tealium = TealiumBuilder("account", "profile", 3).SetEnvironment("environment").SetDatasource("datasource").Build()`
+> E.g. with environment and datasource: `tealium = TealiumBuilder("account", "profile").SetEnvironment("environment").SetDatasource("datasource").SetLogLevel(3).Build()`
 >
 > Account, profile, environment, and datasource are all strings, while logLevel is an integer from 0 to 3
 
