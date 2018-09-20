@@ -14,8 +14,8 @@
 '@param environment Tealium environment identifier as a string (required)
 '@param logLevel as an integer 0-None,1-Errors,2-Warnings,3-Messages | higher log levels include lower
 '@return Object Instance of Tealium
-function TealiumCore(logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid) as Object
-    Instantiate = function (logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid) as Object
+function TealiumCore(logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid, epochInMilli=false) as Object
+    Instantiate = function (logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid, epochInMilli=false) as Object
         return {
             'Initialize gets called in the createTealium function. Use to do any kind of setup after creating the object.
             Initialize: function () as Object
@@ -35,6 +35,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             profile: profile
             environment: environment
             datasource: datasource
+            epochInMilli: epochInMilli
 
             'Resets Session ID - if needed
             ResetSessionId: function () as Integer
@@ -168,6 +169,12 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 return date
             end function
 
+            _GetTimeStampMilli: function () as String
+                now = CreateObject("roDateTime")
+                date = now.asSeconds().ToStr() + m._zpad(now.GetMilliseconds().ToStr(), 3)
+                return date
+            end function
+
             _GetUniversalDataSources: function () as Object
                 dataSources = CreateObject("roAssociativeArray")
                 dataSources.Append(m._GetPersistentData())
@@ -181,8 +188,12 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 this = {
                     tealium_random : m._GetRandomNumber()
                     tealium_session_id : m.sessionId
-                    tealium_timestamp_epoch : m._GetTimeStamp()
                 }
+                if m.epochInMilli
+                    this.tealium_timestamp_epoch = m._GetTimeStampMilli()
+                else
+                    this.tealium_timestamp_epoch = m._GetTimeStamp()
+                end if
                 return this
             end function
 
@@ -258,7 +269,15 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 sec.Write(key, value)
                 sec.Flush() 'commit it
             end function
+
+            _zpad: function (toPad As String, length as Integer) as String
+                paddedString = toPad
+                while Len(paddedString) < length
+                    paddedString = "0" + paddedString
+                end while
+                return paddedString
+            end function
         }
     end function
-    return Instantiate(logLevel, account, profile, environment, datasource).Initialize()
+    return Instantiate(logLevel, account, profile, environment, datasource, epochInMilli).Initialize()
 end function
