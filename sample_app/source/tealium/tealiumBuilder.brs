@@ -22,6 +22,7 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
         _logLevel: logLevel
         _environment: invalid
         _datasource: invalid
+        _epochInMilli: false
 
         _IsValidAccount: function () as Boolean
             'valid if doesn't contain empty spaces and not an empty string
@@ -74,9 +75,14 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
             return m
         end function
 
+        SetEpochInMilli: function (epochInMilli as Boolean) as Object
+            m._epochInMilli = epochInMilli
+            return m
+        end function
+
         Build: function () as Object
             if m._IsValidConfig()
-                return TealiumCore(m._logLevel, m._account, m._profile, m._environment, m._datasource)
+                return TealiumCore(m._logLevel, m._account, m._profile, m._environment, m._datasource, m._epochInMilli)
             end if
             return invalid
         end function

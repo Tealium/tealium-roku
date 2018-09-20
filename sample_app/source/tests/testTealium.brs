@@ -25,6 +25,7 @@ function TestTealiumHasProperties(t as Object)
         "TrackEvent"
         "toStr"
         "_tealiumLog"
+        "epochInMilli"
     ]
 
     for each prop in requiredProps
@@ -51,6 +52,7 @@ function TestTealiumHasEnvironment(t as Object)
         "TrackEvent"
         "toStr"
         "_tealiumLog"
+        "epochInMilli"
     ]
 
     for each prop in requiredProps
@@ -77,6 +79,7 @@ function TestTealiumHasDatasource(t as Object)
         "TrackEvent"
         "toStr"
         "_tealiumLog"
+        "epochInMilli"
     ]
 
     for each prop in requiredProps
@@ -249,6 +252,20 @@ function TestTealiumSetLogLevelViaConstructor(t as Object)
     for i = 0 to 3
         tealium = TealiumBuilder(testAccount, testProfile, i).Build()
         t.AssertTrue(tealium._tealiumLog.logLevelThreshold=i)
+    end for
+end function
+
+' test the "epochInMilli" function
+function TestTealiumSetsEpochInMilli(t as Object)
+    print "Entering TestTealiumSetsEpochInMilli"
+
+    testAccount = "testAccount"
+    testProfile = "testProfile"
+
+    for i = 1 to 5
+        shouldSetEpochInMilli = (i MOD 2 = 0)
+        tealium = TealiumBuilder(testAccount, testProfile).SetEpochInMilli(shouldSetEpochInMilli).Build()
+        t.AssertEqual(tealium.epochInMilli, shouldSetEpochInMilli)
     end for
 end function
 
