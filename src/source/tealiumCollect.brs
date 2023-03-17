@@ -26,7 +26,7 @@ function CreateTealiumCollect(tealiumLog) as Object
             '-------------------------------------
 
             DefaultUrl: function () as String
-                return "https://collect.tealiumiq.com/vdata/i.gif"
+                return "https://collect.tealiumiq.com/event"
             end function
 
             SetBaseUrl: function (newBaseUrl as String) as String
@@ -50,16 +50,16 @@ function CreateTealiumCollect(tealiumLog) as Object
             end function
 
             'Executes dispatch
-            _DispatchEvent: function (dataSources as Object, callbackObj as Object) as Object
+            _DispatchEvent: function (dataSources as Object) as Object
                 'repackage data sources as http params and add to base vdata URL - default URL:
                 'call appendQueryParams
-                params = m._AppendQueryParams(m._UrlTransfer, dataSources)
+                postBody = m._GetPostBody(m._UrlTransfer, dataSources)
                 'call sendHttpRequest
-                return m._SendHttpRequest (m.baseUrl, params, m._UrlTransfer, callbackObj)
+                return m._SendHttpRequest (m.baseUrl, postBody, m._UrlTransfer)
             end function
 
             'Async call with timeout - so it will be synchronous public
-            _SendHttpRequest: function (url as String, encodedParams as String, urlTransfer as Object,callbackObj) as Object
+            _SendHttpRequest: function (url as String, postBody as String, urlTransfer as Object) as Object
                 'Set Timeout
                 seconds% = 0
                 timeout% = 0
@@ -73,10 +73,11 @@ function CreateTealiumCollect(tealiumLog) as Object
                 end if
 
                 'GET request
-                fullUrl = url + "?" + encodedParams
-                urlTransfer.SetUrl(fullUrl)
-                if urlTransfer.AsyncGetToString() then
-                    message = "Requested URL: " + fullUrl
+                urlTransfer.SetUrl(url)
+                if urlTransfer.AsyncPostFromString(postBody) then
+                    message = "Requested URL: " + url
+                    m._Print(message, 3)
+                    message = "Post Body: " + postBody
                     m._Print(message, 3)
                     'Capture url event message
                     event = wait (timeout%, urlTransfer.GetPort())
@@ -99,19 +100,14 @@ function CreateTealiumCollect(tealiumLog) as Object
                         m._Print(message, 3)
                     end if
                 end if
-                if callbackObj <> invalid then
-                    if callbackObj.DoesExist("callback") <> invalid then
-                        callbackObj.callback(event)
-                    end if
-                end if
-                return fullUrl
+                return url
             end function
 
             'Add data sources to base url as query string params
             '@param urlTransfer Object to perform encoding
             '@param dataSources roAssociativeArray type (Required)
             '@return String query string parameters
-            _AppendQueryParams: function (urlTransfer as Object, dataSources as Object) as String
+            _GetPostBody: function (urlTransfer as Object, dataSources as Object) as String
                 queryParams = ""
 
                 keys = dataSources.Keys()

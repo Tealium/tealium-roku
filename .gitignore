@@ -1,3 +1,6 @@
 out/
 **/.DS_Store
 sample_app.zip
+TealiumRokuSample/node_modules
+TealiumRokuSample/**/roku_modules
+**/Archive.zip

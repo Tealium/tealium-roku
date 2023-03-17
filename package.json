@@ -1,0 +1,16 @@
+{
+  "name": "tealium-roku-plugin",
+  "version": "2.0.0",
+  "description": "Tealium integration for Roku",
+  "scripts": {
+  },
+  "files": [
+      "src/**/*"
+  ],
+  "ropm": {
+      "packageRootDir": "src"
+  },
+  "keywords": ["ropm"],
+  "author": "",
+  "license": "ISC"
+}
