@@ -32,6 +32,8 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 
 ## Change Log
 
+- 2.0.0 Rewrite to support ROPM and updated sample app to use SceneGraph components
+
 - 1.2.0 Add Datasource
     - New variable added:
 		- tealium_datasource
