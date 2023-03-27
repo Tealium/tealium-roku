@@ -50,16 +50,16 @@ function CreateTealiumCollect(tealiumLog) as Object
             end function
 
             'Executes dispatch
-            _DispatchEvent: function (dataSources as Object) as Object
+            _DispatchEvent: function (dataSources as Object, callbackObj as Object) as Object
                 'repackage data sources as http params and add to base vdata URL - default URL:
-                'call appendQueryParams
+                'call GetPostBody
                 postBody = m._GetPostBody(m._UrlTransfer, dataSources)
                 'call sendHttpRequest
-                return m._SendHttpRequest (m.baseUrl, postBody, m._UrlTransfer)
+                return m._SendHttpRequest (m.baseUrl, postBody, m._UrlTransfer, callbackObj)
             end function
 
             'Async call with timeout - so it will be synchronous public
-            _SendHttpRequest: function (url as String, postBody as String, urlTransfer as Object) as Object
+            _SendHttpRequest: function (url as String, postBody as String, urlTransfer as Object, callbackObj) as Object
                 'Set Timeout
                 seconds% = 0
                 timeout% = 0
@@ -73,6 +73,7 @@ function CreateTealiumCollect(tealiumLog) as Object
                 end if
 
                 'GET request
+                urlTransfer.AddHeader("Content-type", "application/json")
                 urlTransfer.SetUrl(url)
                 if urlTransfer.AsyncPostFromString(postBody) then
                     message = "Requested URL: " + url
@@ -99,6 +100,11 @@ function CreateTealiumCollect(tealiumLog) as Object
                         message = "AsyncPostFromString Unknown Event: " + event
                         m._Print(message, 3)
                     end if
+                    if callbackObj <> invalid then
+                        if callbackObj.DoesExist("callback") <> invalid then
+                            callbackObj.callback(event)
+                        end if
+                    end if
                 end if
                 return url
             end function
@@ -108,32 +114,7 @@ function CreateTealiumCollect(tealiumLog) as Object
             '@param dataSources roAssociativeArray type (Required)
             '@return String query string parameters
             _GetPostBody: function (urlTransfer as Object, dataSources as Object) as String
-                queryParams = ""
-
-                keys = dataSources.Keys()
-                length = keys.Count()
-                'Use indexed for loop instead
-                for i=0 to length step 1
-
-                    key = keys[i]
-
-                    if key <> invalid then
-                        if dataSources.LookUp(key) <> invalid then
-                            if i <> 0 then
-                                queryParams += "&"
-                            end if
-
-                            encodedKey = urlTransfer.Escape(key)
-                            queryParams += encodedKey
-                            queryParams += "="
-                            value = dataSources.LookUp(key).ToStr()
-                            encodedValue = urlTransfer.Escape(value)
-                            queryParams += encodedValue
-
-                        end if
-                    end if
-                end for
-                return queryParams
+                return FormatJson(dataSources)
             end function
 
             _Print: function (message as String, logLevel as Integer)

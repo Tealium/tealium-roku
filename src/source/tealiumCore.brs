@@ -50,7 +50,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             '@param title of the track event as a string. This will be the data source value for 'event_name' (required)
             '@param data roAssociativeArray 'dictionary' of additional data source keys and values (optional)
             '@param callbackObj An object with a function property 'callback' that can take an option roEvent argument
-            TrackEvent: function(eventType as String, title as String, data as Object)
+            TrackEvent: function(eventType as String, title as String, data as Object, callbackObj = invalid)
                 'Combine data with TealiumUniversalDataSources with event_name any in data that is a match will overwrite key/value
                 'create roAssocArray - add all universal data sources
                 dataSources = CreateObject("roAssociativeArray")
@@ -64,7 +64,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 dataSources["event_name"] = title
                 dataSources["tealium_event"] = title
                 'call dispatchEvent
-                m.tealiumCollect._DispatchEvent(dataSources)
+                m.tealiumCollect._DispatchEvent(dataSources, callbackObj)
                 m._Print("Tracking", 3)
             end function
 
