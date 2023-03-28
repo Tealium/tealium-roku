@@ -4,6 +4,7 @@
 
   <script type="text/brightscript" uri="TealiumSample.brs" />
   <script type="text/brightscript" uri="pkg:/source/roku_modules/tealium/TealiumTaskInterface.brs"/>
+  
   <children>
     <LayoutGroup
       id="layoutGroup"
@@ -11,7 +12,7 @@
       itemSpacings="[10,20]">
         <ButtonGroup id = "tealiumButtonGroup" />
     </LayoutGroup>
-  <TealiumTask id="tealiumTask"/>
+    <TealiumTask id="tealiumTask"/>
   </children>
 
 </component>

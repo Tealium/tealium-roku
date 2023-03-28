@@ -51,11 +51,8 @@ function CreateTealiumCollect(tealiumLog) as Object
 
             'Executes dispatch
             _DispatchEvent: function (dataSources as Object, callbackObj as Object) as Object
-                'repackage data sources as http params and add to base vdata URL - default URL:
-                'call GetPostBody
-                postBody = m._GetPostBody(m._UrlTransfer, dataSources)
                 'call sendHttpRequest
-                return m._SendHttpRequest (m.baseUrl, postBody, m._UrlTransfer, callbackObj)
+                return m._SendHttpRequest (m.baseUrl, FormatJson(dataSources), m._UrlTransfer, callbackObj)
             end function
 
             'Async call with timeout - so it will be synchronous public
@@ -107,14 +104,6 @@ function CreateTealiumCollect(tealiumLog) as Object
                     end if
                 end if
                 return url
-            end function
-
-            'Add data sources to base url as query string params
-            '@param urlTransfer Object to perform encoding
-            '@param dataSources roAssociativeArray type (Required)
-            '@return String query string parameters
-            _GetPostBody: function (urlTransfer as Object, dataSources as Object) as String
-                return FormatJson(dataSources)
             end function
 
             _Print: function (message as String, logLevel as Integer)

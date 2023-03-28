@@ -18,7 +18,7 @@ sub init()
     task = m.top.findNode("tealiumTask")
     m.tealiumTask = TealiumTask(task)
     m.tealiumTask.init("tealiummobile", "demo")
-    
+
 
     m.top.setFocus(true)
   end sub
