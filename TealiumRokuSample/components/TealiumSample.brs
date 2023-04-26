@@ -4,7 +4,7 @@ sub init()
     m.ButtonGroup = m.top.findNode("tealiumButtonGroup")
     m.LayoutGroup = m.top.findNode("layoutGroup")
 
-    m.ButtonGroup.buttons = [ "Track View", "Track Event", "Track Activity" ]
+    m.ButtonGroup.buttons = [ "Track View", "Track Event" ]
 
     di = CreateObject("roDeviceInfo")
     screenSize = di.GetDisplaySize()
@@ -30,8 +30,6 @@ sub init()
     if m.ButtonGroup.buttonSelected = 0 then
       m.tealiumTask.trackView("tealium_roku_view", data)
     else if m.ButtonGroup.buttonSelected = 1 then
-      m.tealiumTask.trackInteraction("tealium_roku_event", data)
-    else if m.ButtonGroup.buttonSelected = 2 then
-      m.tealiumTask.trackActivity("tealium_roku_activity", data)
+      m.tealiumTask.trackEvent("tealium_roku_event", data)
     end if
   end sub

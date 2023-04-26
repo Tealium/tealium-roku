@@ -32,7 +32,10 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 
 ## Change Log
 
-- 2.0.0 Rewrite to support ROPM and updated sample app to use SceneGraph components
+- 2.0.0
+	- Rewrite to support ROPM
+	- Updated sample app to use SceneGraph components
+	- Changed to the `/event` endpoint and made the request a POST
 
 - 1.2.0 Add Datasource
     - New variable added:
