@@ -54,20 +54,10 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
             end if
         end function
 
-        _IsValidTraceId: function () as Boolean
-            'when defined, only valid if doesn't contain empty spaces, and not an empty string
-            if m._traceId <> invalid
-                return m._traceId.Instr(0, " ") = -1 and m._traceId <> ""
-            else
-                'traceId is optional, so still valid if not defined
-                return true
-            end if
-        end function
-
         _IsValidConfig: function () as Boolean
             'valid if account, profile, datasource, and environment are all valid.
             'datasource and environment are valid if they are not defined since they are optional
-            return m._IsValidAccount() and m._IsValidProfile() and m._IsValidDatasource() and m._IsValidEnvironment() and m._IsValidTraceId()
+            return m._IsValidAccount() and m._IsValidProfile() and m._IsValidDatasource() and m._IsValidEnvironment()
         end function
 
         SetDatasource: function (datasource as String) as Object

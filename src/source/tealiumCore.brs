@@ -102,8 +102,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             'Does not persist the id by itself, call the tealiumWriteToFile function from
             'the function calling this function.
              _CreateNewVisitorId: function () as String
-                info = CreateObject("roDeviceInfo")
-                uuid = info.GetRandomUUID()
+                uuid m._CreateNewUUID()
                 cleanUuid = uuid.Replace("-", "")
                 m._Print("New Visitor Id: "+ cleanUuid, 3)
                 return cleanUuid
