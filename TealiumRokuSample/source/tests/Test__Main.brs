@@ -1,16 +1,56 @@
-'testTealium.brs - tests for Tealium-Roku components using Mark Roddy's Brightscript testing framework
-'
-'Authors: Chris Anderberg, Jason Koo, Karen Tamayo, Merritt Tidwell
-'License: See the accompanying License.txt file for full license details'
-'Copyright (C) 2016 Tealium Inc.
-'
-'--------------------------------
-'Unit tests for tealium
-'--------------------------------
+Function TestSuite__Main() as Object
 
-' test that the TealiumBuilder creates an object with required properties
-function TestTealiumHasProperties(t as Object)
-    print "Entering testTealiumHasProperties"
+    this = BaseTestSuite()
+
+
+    this.Name = "MainTestSuite"
+
+    this.SetUp = MainTestSuite__SetUp
+    this.TearDown = MainTestSuite__TearDown
+
+    this.addTest("TealiumHasProperties", TestCase__Main_TealiumHasProperties)
+    this.addTest("TealiumHasEnvironment", TestCase__Main_TealiumHasEnvironment)
+    this.addTest("TealiumHasDatasource", TestCase__Main_TealiumHasDatasource)
+    this.addTest("TealiumGetAccountInfo", TestCase__Main_TealiumGetAccountInfo)
+    this.addTest("TealiumGetLibraryInfo", TestCase__Main_TealiumGetLibraryInfo)
+    this.addTest("TealiumSetsAccountProfile", TestCase__Main_TealiumSetsAccountProfile)
+    this.addTest("TealiumSetsEnvironment", TestCase__Main_TealiumSetsEnvironment)
+    this.addTest("TealiumSetsDatasource", TestCase__Main_TealiumSetsDatasource)
+    this.addTest("TealiumBuilderRejectsMalformedParams", TestCase__Main_TealiumBuilderRejectsMalformedParams)
+    this.addTest("TealiumGetLogLevel", TestCase__Main_TealiumGetLogLevel)
+    this.addTest("TealiumSetLogLevel", TestCase__Main_TealiumSetLogLevel)
+    this.addTest("TealiumSetLogLevelViaConstructor", TestCase__Main_TealiumSetLogLevelViaConstructor)
+    this.addTest("TealiumResetSessionId", TestCase__Main_TealiumResetSessionId)
+    this.addTest("TealiumGetRandomNumber", TestCase__Main_TealiumGetRandomNumber)
+    this.addTest("DuplicateVisitorId", TestCase__Main_DuplicateVisitorId)
+    this.addTest("ResetVisitorId", TestCase__Main_ResetVisitorId)
+    this.addTest("PersistVisitorId", TestCase__Main_PersistVisitorId)
+    this.addTest("CreateTealiumCollect", TestCase__Main_CreateTealiumCollect)
+    this.addTest("TealiumCollectHasProperties", TestCase__Main_TealiumCollectHasProperties)
+    this.addTest("SendHttpRequestRecievesCorrectParams", TestCase__Main_SendHttpRequestRecievesCorrectParams)
+    this.addTest("SendHttpRequestWithDefaultUrl", TestCase__Main_SendHttpRequestWithDefaultUrl)
+    this.addTest("SendHttpRequestCanOverrideUrl", TestCase__Main_SendHttpRequestCanOverrideUrl)
+    this.addTest("TealiumTrackEvent", TestCase__Main_TealiumTrackEvent)
+    this.addTest("CreateTealiumShim", TestCase__Main_CreateTealiumShim)
+
+    return this
+End Function
+
+Sub MainTestSuite__SetUp()
+    print("Test Setup")
+End Sub
+
+Sub MainTestSuite__TearDown()
+    print("Test Tear Down")
+End Sub
+
+'----------------------------------------------------------------
+' Check if data has an expected amount of items
+'
+' @return An empty string if test is success or error message if not.
+'----------------------------------------------------------------
+Function TestCase__Main_TealiumHasProperties() as String
+print "Entering testTealiumHasProperties"
 
     testAccount = "testAccount"
     testProfile = "testProfile"
@@ -27,13 +67,16 @@ function TestTealiumHasProperties(t as Object)
         "_tealiumLog"
     ]
 
+    hasInvalidProp = false
     for each prop in requiredProps
-        t.AssertNotInvalid(tealium[prop])
+        if tealium[prop] = invalid then
+            hasInvalidProp = true
+        end if
     end for
-end function
+    return m.assertFalse(hasInvalidProp, "Invalid prop found")
+End Function
 
-' test that the TealiumBuilder creates an object with environment
-function TestTealiumHasEnvironment(t as Object)
+function TestCase__Main_TealiumHasEnvironment() as String
     print "Entering testTealiumHasEnvironment"
 
     testAccount = "testAccount"
@@ -53,13 +96,17 @@ function TestTealiumHasEnvironment(t as Object)
         "_tealiumLog"
     ]
 
+    hasInvalidProp = false
     for each prop in requiredProps
-        t.AssertNotInvalid(tealium[prop])
+        if tealium[prop] = invalid then
+            hasInvalidProp = true
+        end if
     end for
+    return m.assertFalse(hasInvalidProp, "Invalid prop found")
 end function
 
 ' test that the TealiumBuilder creates an object with datasource
-function TestTealiumHasDatasource(t as Object)
+function TestCase__Main_TealiumHasDatasource() as String
     print "Entering testTealiumHasDatasource"
 
     testAccount = "testAccount"
@@ -79,14 +126,20 @@ function TestTealiumHasDatasource(t as Object)
         "_tealiumLog"
     ]
 
+    hasInvalidProp = false
     for each prop in requiredProps
-        t.AssertNotInvalid(tealium[prop])
+        if tealium[prop] = invalid then
+            hasInvalidProp = true
+        end if
     end for
+    return m.assertFalse(hasInvalidProp, "Invalid prop found")
 end function
 
 'test that _GetAccountInfo returns the correct info
-function TestTealiumGetAccountInfo(t as Object)
+function TestCase__Main_TealiumGetAccountInfo() as String
     print "Entering testTealiumGetAccountInfo"
+
+    response = ""
 
     for i = 1 to 5
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
@@ -97,15 +150,16 @@ function TestTealiumGetAccountInfo(t as Object)
         tealium = TealiumBuilder(testAccount$, testProfile$).SetEnvironment(testEnv$).SetDatasource(testDatasource$).Build()
         accountInfo = tealium._GetAccountInfo()
 
-        t.AssertEqual(accountInfo.tealium_account, testAccount$)
-        t.AssertEqual(accountInfo.tealium_profile, testProfile$)
-        t.AssertEqual(accountInfo.tealium_environment, testEnv$)
-        t.AssertEqual(accountInfo.tealium_datasource, testDatasource$)
+        response += m.AssertEqual(accountInfo.tealium_account, testAccount$, "Invalid Account")
+        response += m.AssertEqual(accountInfo.tealium_profile, testProfile$, "Invalid Profile")
+        response += m.AssertEqual(accountInfo.tealium_environment, testEnv$, "Invalid Env")
+        response += m.AssertEqual(accountInfo.tealium_datasource, testDatasource$, "Invalid Datasource")
     end for
+    return response
 end function
 
 'test that _GetLibraryInfo returns the correct info
-function TestTealiumGetLibraryInfo(t as Object)
+function TestCase__Main_TealiumGetLibraryInfo() as String
     print "Entering testTealiumGetLibraryInfo"
 
     testAccount$ = "testAccount" + Rnd(1000000000).toStr()
@@ -114,14 +168,16 @@ function TestTealiumGetLibraryInfo(t as Object)
     tealium = TealiumBuilder(testAccount$, testProfile$).Build()
     libraryInfo = tealium._GetLibraryInfo()
 
-    t.AssertEqual(libraryInfo.tealium_library_name, "roku")
-    t.AssertEqual(libraryInfo.tealium_library_version, "1.2.0")
+    response = ""
+    response += m.AssertEqual(libraryInfo.tealium_library_name, "roku")
+    response += m.AssertEqual(libraryInfo.tealium_library_version, "2.0.0")
+    return response
 end function
 
 ' test that the TealiumBuilder assigns account and profile correctly
-function TestBuildTealiumSetsAccountProfile(t as Object)
-    print "Entering testtestTealiumSetsAccountProfileEnvironment"
+function TestCase__Main_TealiumSetsAccountProfile() as String
 
+    response = ""
     for i = 1 to 5
 
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
@@ -129,19 +185,17 @@ function TestBuildTealiumSetsAccountProfile(t as Object)
 
         tealium = TealiumBuilder(testAccount$, testProfile$).Build()
 
-        'Check that the account, profile, and environment were correctly assigned
-'        print "Account assigned : " + tealium.account
-'        print "Profile assigned : " + tealium.profile
-
-        t.AssertEqual(tealium.account, testAccount$)
-        t.AssertEqual(tealium.profile, testProfile$)
+        response += m.AssertEqual(tealium.account, testAccount$, "Incorrect Account")
+        response += m.AssertEqual(tealium.profile, testProfile$, "Incorrect Profile")
 
     end for
+    return response
 end function
 
 ' test that the TealiumBuilder assigns environment correctly
-function TestBuildTealiumSetsEnvironment(t as Object)
-    print "Entering testtestTealiumSetsAccountProfileEnvironment"
+function TestCase__Main_TealiumSetsEnvironment() as String
+    
+    response = ""
 
     for i = 1 to 5
 
@@ -151,22 +205,17 @@ function TestBuildTealiumSetsEnvironment(t as Object)
 
         tealium = TealiumBuilder(testAccount$, testProfile$).SetEnvironment(testEnv$).Build()
 
-        'Check that the account, profile, and environment were correctly assigned
-'        print "Account assigned : " + tealium.account
-'        print "Profile assigned : " + tealium.profile
-'        print "Environment assigned : " + tealium.environment
-
-        t.AssertEqual(tealium.account, testAccount$)
-        t.AssertEqual(tealium.profile, testProfile$)
-        t.AssertEqual(tealium.environment, testEnv$)
+        response += m.AssertEqual(tealium.account, testAccount$, "Invalid Account")
+        response += m.AssertEqual(tealium.profile, testProfile$, "Invalid Profile")
+        response += m.AssertEqual(tealium.environment, testEnv$, "Invalid Env")
 
     end for
+    return response
 end function
 
 ' test that the TealiumBuilder assigns datasource correctly
-function TestBuildTealiumSetsDatasource(t as Object)
-    print "Entering testBuildTealiumSetsDatasource"
-
+function TestCase__Main_TealiumSetsDatasource() as String
+    response = ""
     for i = 1 to 5
 
         testAccount$ = "testAccount" + Rnd(1000000000).toStr()
@@ -175,33 +224,28 @@ function TestBuildTealiumSetsDatasource(t as Object)
 
         tealium = TealiumBuilder(testAccount$, testProfile$).SetDatasource(testDatasource$).Build()
 
-        'Check that the account, profile, and environment were correctly assigned
-'        print "Account assigned : " + tealium.account
-'        print "Profile assigned : " + tealium.profile
-'        print "Datasource assigned : " + tealium.datasource
-
-        t.AssertEqual(tealium.account, testAccount$)
-        t.AssertEqual(tealium.profile, testProfile$)
-        t.AssertEqual(tealium.datasource, testDatasource$)
+        response += m.AssertEqual(tealium.account, testAccount$, "Account does not match")
+        response += m.AssertEqual(tealium.profile, testProfile$, "Profile does not match")
+        response += m.AssertEqual(tealium.datasource, testDatasource$, "Datasources does not match")
 
     end for
+    return response
 end function
 
 ' test that the TealiumBuilder won't accept malformed parameters for account, profile, environment, or datasource
-function TestTealiumBuilderRejectsMalformedParams(t as Object)
-        print "Entering testTealiumBuilderRejectsMalformedParams"
+function TestCase__Main_TealiumBuilderRejectsMalformedParams() as String
+    
+    response = ""
+    response += m.AssertInvalid(TealiumBuilder("", "testProfile").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("").Build(), "Builder is not invalid")
 
-        'should reject empty strings
-        t.AssertInvalid(TealiumBuilder("", "testProfile").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("").Build())
-
-        'should reject params with spaces
-        t.AssertInvalid(TealiumBuilder("test Account", "testProfile").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "test Profile").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("test environment").Build())
-        t.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("test datasource").Build())
+    response += m.AssertInvalid(TealiumBuilder("test Account", "testProfile").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "test Profile").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetEnvironment("test environment").Build(), "Builder is not invalid")
+    response += m.AssertInvalid(TealiumBuilder("testAccount", "testProfile").SetDatasource("test datasource").Build(), "Builder is not invalid")
+    return response
 end function
 
 '----------------------------------
@@ -209,53 +253,49 @@ end function
 '----------------------------------
 
 'test the "_GetLogLevel" function
-function TestTealiumGetLogLevel(t as Object)
-    print "Entering testTealiumGetLogLevel"
-
+function TestCase__Main_TealiumGetLogLevel() as String
+    response = ""
     testAccount = "testAccount"
     testProfile = "testProfile"
 
     tealium = TealiumBuilder(testAccount, testProfile).Build()
 
-    print "get log level"
     logLevel% = tealium._TealiumLog.logLevelThreshold
-    print "test log level is in range"
-    t.AssertTrue(logLevel% >= 0)
-    t.AssertTrue(logLevel% <= 3)
+    response += m.AssertTrue(logLevel% >= 0, "Loglevel Invalid")
+    response += m.AssertTrue(logLevel% <= 3, "Loglevel Invalid")
+    return response
 end function
 
 'test the "SetLogLevel" function
-function TestTealiumSetLogLevel(t as Object)
-    print "Entering testTealiumSetLogLevel"
-
+function TestCase__Main_TealiumSetLogLevel() as String
     testAccount = "testAccount"
     testProfile = "testProfile"
 
     ' test each of the possible log levels
+    response = ""
     for i = 0 to 3
         tealium = TealiumBuilder(testAccount, testProfile).SetLogLevel(i).Build()
-        t.AssertTrue(tealium._tealiumLog.logLevelThreshold=i)
+        response += m.AssertTrue(tealium._tealiumLog.logLevelThreshold=i, "Threshold doesn't match")
     end for
+    return response
 end function
 
 'test setting the log level through the builder constructor
-function TestTealiumSetLogLevelViaConstructor(t as Object)
-    print "Entering testTealiumSetLogLevel"
-
+function TestCase__Main_TealiumSetLogLevelViaConstructor() as String
     testAccount = "testAccount"
     testProfile = "testProfile"
 
     ' test each of the possible log levels
+    response = ""
     for i = 0 to 3
         tealium = TealiumBuilder(testAccount, testProfile, i).Build()
-        t.AssertTrue(tealium._tealiumLog.logLevelThreshold=i)
+        response += m.AssertTrue(tealium._tealiumLog.logLevelThreshold=i, "Threshold doesn't match")
     end for
+    return response
 end function
 
 'test ResetSessionId
-function TestTealiumResetSessionId(t as Object)
-    print "Entering testTealiumResetSessionId"
-
+function TestCase__Main_TealiumResetSessionId() as String
     p = CreateObject("roMessagePort")
 
     testAccount = "testAccount"
@@ -263,10 +303,10 @@ function TestTealiumResetSessionId(t as Object)
 
     tealium = TealiumBuilder(testAccount, testProfile).Build()
 
+    response = ""
     for i=1 to 10
         'get current session id
         oldSessionId = tealium.sessionId
-        print("waiting...")
 
         'wait for a random time between 1 second and 4 seconds
         wait(Rnd(3000) + 1000, p)
@@ -276,18 +316,18 @@ function TestTealiumResetSessionId(t as Object)
         newSessionId = tealium.sessionId
 
         'assert the old and new session id are different
-        t.AssertFalse(oldSessionId=newSessionId)
+        response += m.AssertFalse(oldSessionId=newSessionId, "Session Ids don't match")
 
 
         print "old session id: " oldSessionId
         print "new session id: " newSessionId
     end for
+    return response
 end function
 
 'check that randomNumbers are random for each instance and the number is 16 characters'
-function TestTealiumGetRandomNumber(t as Object)
-    print "Entering testGetRandomNumber"
-
+function TestCase__Main_TealiumGetRandomNumber() as String
+    response = ""
     tealium = TealiumBuilder("account1", "profile").Build()
     random1 = tealium._GetRandomNumber()
 
@@ -311,56 +351,53 @@ function TestTealiumGetRandomNumber(t as Object)
     for i=0 to randomArray.Count()-1
         print randomArray.GetEntry(i)
         for k=i+1 to randomArray.Count()
-            t.AssertNotEqual(randomArray.GetEntry(i), randomArray.GetEntry(k))
+            response += m.AssertNotEqual(randomArray.GetEntry(i), randomArray.GetEntry(k), "Number isn't random")
         end for
     end for
 
-    t.AssertTrue(Len(random1)=16)
-    t.AssertTrue(Len(random2)=16)
-    t.AssertTrue(Len(random3)=16)
-    t.AssertTrue(Len(random4)=16)
-    t.AssertTrue(Len(random5)=16)
-    t.AssertTrue(Len(random6)=16)
-
+    response += m.AssertTrue(Len(random1)=16, "Length isn't correct")
+    response += m.AssertTrue(Len(random2)=16, "Length isn't correct")
+    response += m.AssertTrue(Len(random3)=16, "Length isn't correct")
+    response += m.AssertTrue(Len(random4)=16, "Length isn't correct")
+    response += m.AssertTrue(Len(random5)=16, "Length isn't correct")
+    response += m.AssertTrue(Len(random6)=16, "Length isn't correct")
+    return response
 end function
 
 'Make sure 2 tealium instances created have different vids
-function TestDuplicateVisitorId(t as Object)
+function TestCase__Main_DuplicateVisitorId() as String
     tealium1 = TealiumBuilder("account", "profile").Build()
     tealium2 = TealiumBuilder("anotheraccount", "profile").Build()
     visitorId1 = tealium1.visitorId
     visitorId2 = tealium2.visitorId
-    t.AssertNotEqual(visitorId1, visitorId2)
+    return m.AssertNotEqual(visitorId1, visitorId2, "Values are equal")
 end function
 
 'Make sure the reset vid works
-function TestResetVisitorId(t as Object)
+function TestCase__Main_ResetVisitorId() as String
     tealium = TealiumBuilder("resetAccount", "profile").Build()
     vidOriginal = tealium.visitorId
     tealium._ResetVisitorId()
     vidNew = tealium.visitorId
     print "original vid: " vidOriginal
     print "new vid: " vidNew
-    t.AssertNotEqual(vidOriginal, vidNew)
+    return m.AssertNotEqual(vidOriginal, vidNew, "Visitor Ids Match")
 end function
 
 'Check persistence of visitor id
-function TestPersistVisitorId(t as Object)
+function TestCase__Main_PersistVisitorId() as String
     tealium = TealiumBuilder("resetAccount", "profile").Build()
     vidOriginal = tealium.visitorId
     'Directly call for visitor Id
     vidCheck = tealium._GetVisitorId()
-    t.AssertEqual(vidOriginal, vidCheck)
+    return m.AssertEqual(vidOriginal, vidCheck)
 end function
 
 '------------------------------------------------------------
 'Track Event Unit Tests
 '------------------------------------------------------------
 
-function TestCreateTealiumCollect(t as Object)
-    print "......................................................."
-    print "Entering testCreateTealiumCollect"
-
+function TestCase__Main_CreateTealiumCollect() as String
     testAccount = "testAccount"
     testProfile = "testProfile"
 
@@ -368,14 +405,11 @@ function TestCreateTealiumCollect(t as Object)
 
     collect = CreateTealiumCollect(tealium._tealiumLog)
 
-    t.AssertNotInvalid(collect)
+    return m.AssertNotInvalid(collect)
 end function
 
 ' test that TealiumBuilder creates an object with required properties
-function TestTealiumCollectHasProperties(t as Object)
-    print "......................................................."
-    print "Entering testTealiumCollectHasProperties"
-
+function TestCase__Main_TealiumCollectHasProperties() as String
     testAccount = "testAccount"
     testProfile = "testProfile"
 
@@ -388,42 +422,19 @@ function TestTealiumCollectHasProperties(t as Object)
         "_DispatchEvent"
         "_SendHttpRequest"
         "_tealiumLog"
-        "_AppendQueryParams"
     ]
 
+    hasInvalidProp = false
     for each prop in requiredProps
-        t.AssertNotInvalid(collect[prop])
+        if collect[prop] = invalid then
+            hasInvalidProp = true
+        end if
     end for
+    return m.assertFalse(hasInvalidProp)
 end function
 
-function TestAppendQueryParams(t as Object)
-    print "......................................................."
-    print "Entering testAppendQueryParams"
-
-    ' create a tealium object
-    testAccount = "testAccount"
-    testProfile = "testProfile"
-
-    tealium = TealiumBuilder(testAccount, testProfile).Build()
-
-    ' create a collect object
-    collect = CreateTealiumCollect(tealium._tealiumLog)
-
-    urlTransfer = CreateObject("roUrlTransfer")
-
-    ' check that the _AppendQueryParams function returns expected results for various input
-    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {}), "")
-    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test"}), "test=test")
-    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test", data: "data"}), "data=data&test=test")
-    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {test: "test", data: "data", a: "a", z: "z"}), "a=a&data=data&test=test&z=z")
-    t.AssertEqual(collect._AppendQueryParams(urlTransfer, {data: "test", test: "data", z: "a", a: "z"}), "a=z&data=test&test=data&z=a")
-end function
-
-function TestSendHttpRequestRecievesCorrectParams(t as Object)
-    print "......................................................."
-    print "Entering testSendHttpRequestRecievesCorrectParams"
-
-    ' create tealium object
+function TestCase__Main_SendHttpRequestRecievesCorrectParams() as String
+    response = ""
     testAccount = "testAccount"
     testProfile = "testProfile"
 
@@ -452,24 +463,22 @@ function TestSendHttpRequestRecievesCorrectParams(t as Object)
     ' run the test for a couple cases
     collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
 
-    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.AssertEqual(collect.testResults.params, "data=data&test=test")
-    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    response += m.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/event")
+    response += m.AssertEqual(collect.testResults.params, FormatJson({"data":"data","test":"test"}))
+    response += m.AssertEqual(collect.testResults.callbackObj, callbackObj)
 
     ' override the default url
-    collect.SetBaseURL("https://mydomain.com/test.gif")
+    collect.SetBaseURL("https://mydomain.com/event")
     collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
 
-    t.AssertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
-    t.AssertEqual(collect.testResults.params, "data=data&test=test")
-    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    response += m.AssertEqual(collect.testResults.url, "https://mydomain.com/event")
+    response += m.AssertEqual(collect.testResults.params, FormatJson({"data":"data","test":"test"}))
+    response += m.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    return response
 end function
 
-function TestSendHttpRequestWithDefaultUrl(t as Object)
-    print "......................................................."
-    print "Entering testSendHttpRequestWithDefaultUrl"
-
-    ' create tealium object
+function TestCase__Main_SendHttpRequestWithDefaultUrl() as String
+    response = ""
     testAccount = "testAccount"
     testProfile = "testProfile"
 
@@ -503,16 +512,14 @@ function TestSendHttpRequestWithDefaultUrl(t as Object)
     ' run the test using the shimmed version of _SendHttpRequest using invalid for the default url
     collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
 
-    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.AssertEqual(collect.testResults.params, "data=data&test=test")
-    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    response += m.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/event")
+    response += m.AssertEqual(collect.testResults.params, FormatJson({"data":"data","test":"test"}))
+    response += m.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    return response
 end function
 
-function TestSendHttpRequestCanOverrideUrl(t as Object)
-    print "......................................................."
-    print "Entering testSendHttpRequestCanOverrideUrl"
-
-    ' create tealium object
+function TestCase__Main_SendHttpRequestCanOverrideUrl() as String
+    response = ""
     testAccount = "testAccount"
     testProfile = "testProfile"
 
@@ -544,111 +551,17 @@ function TestSendHttpRequestCanOverrideUrl(t as Object)
     end function
 
     ' run the test using the shimmed version of _SendHttpRequest overriding the default url
-    newURL = collect.SetBaseURL("https://mydomain.com/test.gif")
+    newURL = collect.SetBaseURL("https://mydomain.com/event")
     collect._DispatchEvent({test: "test", data: "data"}, callbackObj)
 
-    t.AssertEqual(collect.testResults.url, "https://mydomain.com/test.gif")
-    t.AssertEqual(collect.testResults.params, "data=data&test=test")
-    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    response += m.AssertEqual(collect.testResults.url, "https://mydomain.com/event")
+    response += m.AssertEqual(collect.testResults.params, FormatJson({"data":"data","test":"test"}))
+    response += m.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    return response
 end function
 
-function TestTealiumTrackEvent(t as Object)
-    ParseParams = function (params as String) as Object
-        ' split a string by all its ampersand "&" symbols
-        SplitStrByAmpersand = function (s as String) as Object
-            c = "&"
-            result = []
-            curStr = ""
-
-            for i=1 to Len(s)
-                if mid(s, i, 1)=c
-                    result.push(curStr)
-                    curStr = ""
-                else
-                    curStr = curStr + mid(s, i, 1)
-                end if
-            end for
-
-            result.push(curStr)
-            curStr = ""
-
-            return result
-        end function
-
-        ' split a string by all its equal "=" symbols
-        SplitStrByEquals = function (s as String) as Object
-            c = "="
-            result = []
-            curStr = ""
-
-            for i=1 to Len(s)
-                if mid(s, i, 1)=c
-                    result.push(curStr)
-                    curStr = ""
-                else
-                    curStr = curStr + mid(s, i, 1)
-                end if
-            end for
-
-            result.push(curStr)
-            curStr = ""
-
-            return result
-        end function
-
-        ' given an array and a function that takes a single argument, apply the function
-        ' to each element in the array and return a new array
-        Map = function (arr as Object, f as function) as Object
-            result = []
-
-            for each e In arr
-                result.push(f(e))
-            end for
-
-            return result
-        end function
-
-        ' get array of all key value pairs in the query params
-        intermediate = Map(SplitStrByAmpersand(params), SplitStrByEquals)
-
-        ' convert the result into an object
-        result = {}
-        for each element in intermediate
-            result[element[0]] = element[1]
-        end for
-
-        return result
-    end function
-
-    GetUrlParams = function (url as String) as String
-        ' split a string by all its question mark "?" symbols
-        splitStrByQuestion = function (s as String) as Object
-            c = "?"
-            result = []
-            curStr = ""
-
-            for i=1 to Len(s)
-                if mid(s, i, 1)=c
-                    result.push(curStr)
-                    curStr = ""
-                else
-                    curStr = curStr + mid(s, i, 1)
-                end if
-            end for
-
-            result.push(curStr)
-            curStr = ""
-
-            return result
-        end function
-
-        return splitStrByQuestion(url)[1]
-    end function
-
-
-    print "......................................................."
-    print "Entering testTealiumTrackEvent"
-
+function TestCase__Main_TealiumTrackEvent() as String
+    response = ""
     ' create tealium object
     testAccount = "testAccount"
     testProfile = "testProfile"
@@ -685,27 +598,26 @@ function TestTealiumTrackEvent(t as Object)
     ' run the test using the shimmed version of _SendHttpRequest using invalid for the default url
     tealium.TrackEvent("activity","testEvent", {test: "test", data: "data"}, callbackObj)
 
-    eventData = ParseParams(GetUrlParams(collect.testResults.fullUrl))
-    parsedParams = ParseParams(collect.testResults.params)
-
-    ' print the sent event data and the params received by _SendHttpRequest for comparison
-    'print eventData
-    'print parsedParams
-
     ' check the url and callback are correct
-    t.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/vdata/i.gif")
-    t.AssertEqual(collect.testResults.callbackObj, callbackObj)
+    response += m.AssertEqual(collect.testResults.url, "https://collect.tealiumiq.com/event")
+    response += m.AssertEqual(collect.testResults.callbackObj, callbackObj)
 
-    ' check that each variable send to the server is correct given
-    ' the params recieved by the _SendHttpRequest function
-    for each key in parsedParams
-        t.AssertEqual(parsedParams[key], eventData[key])
-    end for
+    paramsObject = ParseJson(collect.testResults.params)
+    response += m.AssertEqual(paramsObject["data"], "data")
+    response += m.AssertEqual(paramsObject["test"], "test")
+    response += m.AssertEqual(paramsObject["tealium_account"], "testAccount")
+    response += m.AssertEqual(paramsObject["tealium_datasource"], "testDatasource")
+    response += m.AssertEqual(paramsObject["tealium_environment"], "testEnv")
+    response += m.AssertEqual(paramsObject["tealium_profile"], "testProfile")
+    response += m.AssertEqual(paramsObject["event_name"], "testEvent")
+    response += m.AssertEqual(paramsObject["tealium_event"], "testEvent")
+    response += m.AssertEqual(paramsObject["tealium_event_type"], "activity")
+    response += m.AssertEqual(paramsObject["tealium_library_name"], "roku")
+    response += m.AssertEqual(paramsObject["tealium_library_version"], "2.0.0")
+    return response
 end function
 
-function TestCreateTealiumShim(t as Object)
-    print "testCreateTealiumShim"
-
+function TestCase__Main_CreateTealiumShim() as String
     testAccount = "testAccount"
     testProfile = "testProfile"
     testEnv = "testEnv"
@@ -723,7 +635,11 @@ function TestCreateTealiumShim(t as Object)
         "_tealiumLog"
     ]
 
+    hasInvalidProp = false
     for each prop in requiredProps
-        t.AssertNotInvalid(tealium[prop])
+        if tealium[prop] = invalid then
+            hasInvalidProp = true
+        end if
     end for
+    return m.AssertFalse(hasInvalidProp)
 end function

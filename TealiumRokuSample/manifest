@@ -1,12 +1,11 @@
-title=TestApp
-major_version=1
+title=Tealium
+major_version=2
 minor_version=0
-build_version=0004
-mm_icon_focus_hd=pkg:/images/tealium_background.jpg
-mm_icon_focus_sd=pkg:/images/tealium_background.jpg
+build_version=0005
+mm_icon_focus_hd=pkg:/images/tealium.png
+mm_icon_focus_sd=pkg:/images/tealium.png
 splash_screen_fhd=pkg:/images/tealium_background.jpg
 splash_screen_hd=pkg:/images/tealium_background.jpg
 splash_screen_sd=pkg:/images/tealium_background.jpg
 splash_color=#00a8b6
 splash_min_time=1
-ui_resolutions=fhd

@@ -1,0 +1,18 @@
+{
+  "ropm": {
+    "rootDir": "./"
+  },
+  "ropm": {
+    "noprefix": [
+      "tealium"
+    ]
+  },
+  "name": "tealiumrokusample",
+  "version": "1.0.0",
+  "description": "Sample app for Tealium Roku plugin",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tealium": "file:.."
+  }
+}

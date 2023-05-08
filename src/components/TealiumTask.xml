@@ -1,0 +1,23 @@
+<?xml version = "1.0" encoding = "utf-8" ?> 
+
+<component name = "TealiumTask" extends = "Task" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+  
+  <interface>
+    <field id="tealiumEvent" type="assocarray" alwaysNotify="true"/>
+    <field id="account" type="string"/>
+    <field id="profile" type="string"/>
+    <field id="env" type="string"/>
+    <field id="logLevel" type="integer"/>
+  </interface>
+
+  <script type="text/brightscript" uri="pkg:/components/roku_modules/rokuplugin/TealiumTask.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/rokuplugin/createTealium.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/rokuplugin/tealiumBuilder.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/rokuplugin/tealiumCollect.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/rokuplugin/tealiumCore.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/rokuplugin/tealiumLog.brs" />
+
+  <children>
+  </children>
+
+</component>

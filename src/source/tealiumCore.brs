@@ -14,8 +14,8 @@
 '@param environment Tealium environment identifier as a string (required)
 '@param logLevel as an integer 0-None,1-Errors,2-Warnings,3-Messages | higher log levels include lower
 '@return Object Instance of Tealium
-function TealiumCore(logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid) as Object
-    Instantiate = function (logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid) as Object
+function TealiumCore(logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid, traceId=invalid) as Object
+    Instantiate = function (logLevel as Integer, account as String, profile as String, environment=invalid, datasource=invalid, traceId=invalid) as Object
         return {
             'Initialize gets called in the createTealium function. Use to do any kind of setup after creating the object.
             Initialize: function () as Object
@@ -23,6 +23,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 m.tealiumCollect = CreateTealiumCollect(m._tealiumLog)
                 m.ResetSessionId()
                 m.visitorId = m._GetVisitorId()
+                m.appUUID = m._GetAppUUID()
                 m._Print("Created " + m.ToStr(), 3)
                 return m
             end function
@@ -35,6 +36,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             profile: profile
             environment: environment
             datasource: datasource
+            traceId: traceId
 
             'Resets Session ID - if needed
             ResetSessionId: function () as Integer
@@ -45,24 +47,37 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 return sessionId
             end function
 
-            'Primary Tealium Track Event
+            TrackEvent: function(title as String, data as Object, callbackObj = invalid)
+                m._Track("event", title, data, callbackObj)
+            end function
+
+            TrackView: function(title as String, data as Object, callbackObj = invalid)
+                m._Track("view", title, data, callbackObj)
+            end function
+
+            'Primary Tealium Track
             '@param eventType of track. Should be one of the following: activity, conversion, derived, interaction, view
             '@param title of the track event as a string. This will be the data source value for 'event_name' (required)
             '@param data roAssociativeArray 'dictionary' of additional data source keys and values (optional)
             '@param callbackObj An object with a function property 'callback' that can take an option roEvent argument
-            TrackEvent: function(eventType as String, title as String, data as Object, callbackObj as Object)
+            _Track: function(eventType as String, title as String, data as Object, callbackObj = invalid)
                 'Combine data with TealiumUniversalDataSources with event_name any in data that is a match will overwrite key/value
                 'create roAssocArray - add all universal data sources
                 dataSources = CreateObject("roAssociativeArray")
                 'append client provided data sources
                 dataSources.Append(m._GetUniversalDataSources())
+                dataSources.Append(m._GetTimestampDataSources())
                 if data <> invalid then
                     dataSources.Append(data)
                 end If
                 'append type
                 dataSources["tealium_event_type"] = eventType
-                'append title tealium_event_name
                 dataSources["event_name"] = title
+                dataSources["tealium_event"] = title
+                dataSources["request_uuid"] = m._CreateNewUUID()
+                if m.traceId <> invalid then
+                    dataSources["cp.trace_id"] = m.traceId
+                end if
                 'call dispatchEvent
                 m.tealiumCollect._DispatchEvent(dataSources, callbackObj)
                 m._Print("Tracking", 3)
@@ -87,11 +102,16 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             'Does not persist the id by itself, call the tealiumWriteToFile function from
             'the function calling this function.
              _CreateNewVisitorId: function () as String
-                info = CreateObject("roDeviceInfo")
-                uuid = info.GetRandomUUID()
+                uuid m._CreateNewUUID()
                 cleanUuid = uuid.Replace("-", "")
                 m._Print("New Visitor Id: "+ cleanUuid, 3)
                 return cleanUuid
+             end function
+
+             _CreateNewUUID: function () as String
+                info = CreateObject("roDeviceInfo")
+                uuid = info.GetRandomUUID()
+                return uuid
              end function
 
             'Deletes persistent data for target key
@@ -133,7 +153,7 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             _GetLibraryInfo: function () as Object
                 libInfo = CreateObject("roAssociativeArray")
                 libInfo.tealium_library_name = "roku"
-                libInfo.tealium_library_version = "1.2.0"
+                libInfo.tealium_library_version = "2.0.0"
                 return libInfo
             end function
 
@@ -145,11 +165,13 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 acctData = m._GetAccountInfo()
                 libData = m._GetLibraryInfo()
                 vid = m.visitorId
+                uuid = m.appUUID
 
                 'Add data to one AssociativeArray
                 persistentData.Append(acctData)
                 persistentData.Append(libData)
                 persistentData.tealium_visitor_id = vid
+                persistentData.app_uuid = uuid
                 persistentData.tealium_vid = vid
                 return persistentData
             end function
@@ -175,13 +197,29 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 return dataSources
             end function
 
+            _GetTimestampDataSources: function () as Object
+                date = CreateObject("roDateTime")
+                utcHours = date.GetHours()
+                timestamp = date.asSeconds()
+                milliseconds = date.AsSeconds().ToStr()+Right("00" + date.GetMilliseconds().ToStr(), 3)
+                dataSources = CreateObject("roAssociativeArray")
+                dataSources["timestamp"] = date.ToISOString()
+                dataSources["timestamp_unix"] = timestamp.ToStr()
+                dataSources["timestamp_unix_milliseconds"] = milliseconds
+                date.ToLocalTime()
+                localHours = date.GetHours()
+                dataSources["timestamp_local"] = date.ToISOString()
+                dataSources["timestamp_offset"] = localHours - utcHours
+                return dataSources
+            end function
+
             'Gets needed datasources that will not persist
             '@returns: roAssociativeArray
             _GetVolatileData: function () as Object
                 this = {
                     tealium_random : m._GetRandomNumber()
-                    tealium_session_id : m.sessionId
-                    tealium_timestamp_epoch : m._GetTimeStamp()
+                    tealium_session_id : m.sessionId.ToStr()
+                    tealium_timestamp_epoch : m._GetTimeStamp().ToStr()
                 }
                 return this
             end function
@@ -204,6 +242,22 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
                 'persist
                 m._writeToFile(vidConstant, vid)
                 return vid
+            end function
+
+            'Gets app UUID
+            '@return: String 32 character long alphanumeric
+            _GetAppUUID: function () as String
+                appUUUIDConstant = "app_uuid"
+                priorUUID = m._ReadFromFile(appUUUIDConstant)
+                if priorUUID <> invalid then
+                    if priorUUID <> "" then
+                        return priorUUID
+                    end if
+                end if
+
+                uuid = m._CreateNewUUID()
+                m._writeToFile(appUUUIDConstant, uuid)
+                return uuid
             end function
 
             'For internally logging messages based on desired log level
@@ -260,5 +314,5 @@ function TealiumCore(logLevel as Integer, account as String, profile as String, 
             end function
         }
     end function
-    return Instantiate(logLevel, account, profile, environment, datasource).Initialize()
+    return Instantiate(logLevel, account, profile, environment, datasource, traceId).Initialize()
 end function

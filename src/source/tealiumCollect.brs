@@ -26,7 +26,7 @@ function CreateTealiumCollect(tealiumLog) as Object
             '-------------------------------------
 
             DefaultUrl: function () as String
-                return "https://collect.tealiumiq.com/vdata/i.gif"
+                return "https://collect.tealiumiq.com/event"
             end function
 
             SetBaseUrl: function (newBaseUrl as String) as String
@@ -51,15 +51,12 @@ function CreateTealiumCollect(tealiumLog) as Object
 
             'Executes dispatch
             _DispatchEvent: function (dataSources as Object, callbackObj as Object) as Object
-                'repackage data sources as http params and add to base vdata URL - default URL:
-                'call appendQueryParams
-                params = m._AppendQueryParams(m._UrlTransfer, dataSources)
                 'call sendHttpRequest
-                return m._SendHttpRequest (m.baseUrl, params, m._UrlTransfer, callbackObj)
+                return m._SendHttpRequest (m.baseUrl, FormatJson(dataSources), m._UrlTransfer, callbackObj)
             end function
 
             'Async call with timeout - so it will be synchronous public
-            _SendHttpRequest: function (url as String, encodedParams as String, urlTransfer as Object,callbackObj) as Object
+            _SendHttpRequest: function (url as String, postBody as String, urlTransfer as Object, callbackObj) as Object
                 'Set Timeout
                 seconds% = 0
                 timeout% = 0
@@ -73,10 +70,12 @@ function CreateTealiumCollect(tealiumLog) as Object
                 end if
 
                 'GET request
-                fullUrl = url + "?" + encodedParams
-                urlTransfer.SetUrl(fullUrl)
-                if urlTransfer.AsyncGetToString() then
-                    message = "Requested URL: " + fullUrl
+                urlTransfer.AddHeader("Content-type", "application/json")
+                urlTransfer.SetUrl(url)
+                if urlTransfer.AsyncPostFromString(postBody) then
+                    message = "Requested URL: " + url
+                    m._Print(message, 3)
+                    message = "Post Body: " + postBody
                     m._Print(message, 3)
                     'Capture url event message
                     event = wait (timeout%, urlTransfer.GetPort())
@@ -98,46 +97,13 @@ function CreateTealiumCollect(tealiumLog) as Object
                         message = "AsyncPostFromString Unknown Event: " + event
                         m._Print(message, 3)
                     end if
-                end if
-                if callbackObj <> invalid then
-                    if callbackObj.DoesExist("callback") <> invalid then
-                        callbackObj.callback(event)
-                    end if
-                end if
-                return fullUrl
-            end function
-
-            'Add data sources to base url as query string params
-            '@param urlTransfer Object to perform encoding
-            '@param dataSources roAssociativeArray type (Required)
-            '@return String query string parameters
-            _AppendQueryParams: function (urlTransfer as Object, dataSources as Object) as String
-                queryParams = ""
-
-                keys = dataSources.Keys()
-                length = keys.Count()
-                'Use indexed for loop instead
-                for i=0 to length step 1
-
-                    key = keys[i]
-
-                    if key <> invalid then
-                        if dataSources.LookUp(key) <> invalid then
-                            if i <> 0 then
-                                queryParams += "&"
-                            end if
-
-                            encodedKey = urlTransfer.Escape(key)
-                            queryParams += encodedKey
-                            queryParams += "="
-                            value = dataSources.LookUp(key).ToStr()
-                            encodedValue = urlTransfer.Escape(value)
-                            queryParams += encodedValue
-
+                    if callbackObj <> invalid then
+                        if callbackObj.DoesExist("callback") <> invalid then
+                            callbackObj.callback(event)
                         end if
                     end if
-                end for
-                return queryParams
+                end if
+                return url
             end function
 
             _Print: function (message as String, logLevel as Integer)

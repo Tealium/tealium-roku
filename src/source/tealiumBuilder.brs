@@ -22,6 +22,7 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
         _logLevel: logLevel
         _environment: invalid
         _datasource: invalid
+        _traceId: invalid
 
         _IsValidAccount: function () as Boolean
             'valid if doesn't contain empty spaces and not an empty string
@@ -64,6 +65,11 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
             return m
         end function
 
+        SetTraceId: function(traceId as String) as Object
+            m._traceId = traceId
+            return m
+        end function
+
         SetEnvironment: function (environment as String) as Object
             m._environment = environment
             return m
@@ -76,7 +82,7 @@ function TealiumBuilder(account as String, profile as String, logLevel = 3 as In
 
         Build: function () as Object
             if m._IsValidConfig()
-                return TealiumCore(m._logLevel, m._account, m._profile, m._environment, m._datasource)
+                return TealiumCore(m._logLevel, m._account, m._profile, m._environment, m._datasource, m._traceId)
             end if
             return invalid
         end function

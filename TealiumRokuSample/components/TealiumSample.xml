@@ -1,0 +1,18 @@
+<?xml version = "1.0" encoding = "utf-8" ?> 
+
+<component name = "TealiumSample" extends = "Scene" initialFocus = "tealiumButtonGroup" >
+
+  <script type="text/brightscript" uri="TealiumSample.brs" />
+  <script type="text/brightscript" uri="pkg:/source/roku_modules/tealium/TealiumTaskInterface.brs"/>
+  
+  <children>
+    <LayoutGroup
+      id="layoutGroup"
+      layoutDirection="horiz"
+      itemSpacings="[10,20]">
+        <ButtonGroup id = "tealiumButtonGroup" />
+    </LayoutGroup>
+    <TealiumTask id="tealiumTask"/>
+  </children>
+
+</component>
